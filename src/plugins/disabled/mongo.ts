@@ -8,9 +8,11 @@ export interface TtlockTokenPluginOptions {
 
 const mongoPlugin = fp<TtlockTokenPluginOptions>(async (fastify, opts) => {
   const uri = process.env.DATABASE_URL as string;
+  if (!uri) return;
+
   const client = new MongoClient(uri);
   await client.connect();
-  const database = client.db("openAGI");
+  const database = client.db("");
 
   // Decorate the Fastify instance with the database object
   fastify.decorate("mongo", database);
