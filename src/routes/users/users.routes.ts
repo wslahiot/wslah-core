@@ -1,5 +1,4 @@
 import { getUserInfoSchema } from "./schema/getUserInfoSchema";
-import { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 
 const users = async (fastify: any): Promise<void> => {
   // api to get specific user
