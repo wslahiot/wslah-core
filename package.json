@@ -25,6 +25,8 @@
     "@fastify/sensible": "^5.0.0",
     "@fastify/swagger": "^8.14.0",
     "@fastify/swagger-ui": "^2.1.0",
+    "@fastify/type-provider-typebox": "^4.0.0",
+    "@sinclair/typebox": "^0.32.35",
     "axios": "^1.6.5",
     "bcrypt": "^5.1.1",
     "crypto": "^1.0.1",

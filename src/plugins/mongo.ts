@@ -11,7 +11,7 @@ const mongoPlugin = fp<TtlockTokenPluginOptions>(async (fastify, opts) => {
 
   const client = new MongoClient(uri);
   await client.connect();
-  const database = client.db("");
+  const database = client.db("WSLAH_DB");
 
   // Decorate the Fastify instance with the database object
   fastify.decorate("mongo", database);
