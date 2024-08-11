@@ -35,12 +35,28 @@ export type getUserInfoSchemaType = {
   Error: TError;
 };
 
-export const getUserInfoSchema = {
+export const getUserByIdSchema = {
+  tags: ["users"],
+  deprecated: false,
+  summary: "Get user by id info",
+  description: "Get user by id info",
+  // headers: IHeader,
+  params: IParams,
+  response: {
+    200: IResponse,
+    400: IError,
+    404: IError,
+    500: IError,
+  },
+};
+
+export const getUserSchema = {
   tags: ["users"],
   deprecated: false,
   summary: "Get user info",
   description: "Get user info",
   headers: IHeader,
+
   response: {
     200: IResponse,
     400: IError,
@@ -50,4 +66,5 @@ export const getUserInfoSchema = {
 };
 
 import fp from "fastify-plugin";
+
 export default fp(async (fastify) => {});
