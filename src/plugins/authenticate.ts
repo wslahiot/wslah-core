@@ -1,5 +1,6 @@
 import fp from "fastify-plugin";
 import fastifyJwt, { FastifyJWTOptions } from "@fastify/jwt";
+import axios from "axios";
 
 export default fp<FastifyJWTOptions>(async (fastify) => {
   fastify.register(fastifyJwt, {
@@ -7,8 +8,18 @@ export default fp<FastifyJWTOptions>(async (fastify) => {
   });
 
   fastify.decorate("authenticate", async function (request, reply) {
+    //? User wslah-auth to verify token
     try {
-      await request.jwtVerify();
+      await axios
+        .get("http://localhost:4000/auth/verify", {
+          headers: {
+            Authorization: request.headers.authorization,
+          },
+        })
+        .catch((err) => {
+          console.log(err);
+          throw new Error("Authentication failed");
+        });
     } catch (err: any) {
       reply
         .code(401)

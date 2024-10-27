@@ -8,16 +8,15 @@ type THeader = Static<typeof IHeader>;
 const IParams = Type.Object({});
 type TParams = Static<typeof IParams>;
 
-const IResponse = Type.Object({
-  id: Type.String(),
-});
+const IResponse = Type.Object({});
 
 export const IBody = Type.Object({
-  companyId: Type.String(),
-  name: Type.String(),
-  lat: Type.Number(),
-  lng: Type.Number(),
-  description: Type.String(),
+  entityId: Type.String(),
+  unitName: Type.String(),
+  unitType: Type.String(),
+  isPublic: Type.Boolean(),
+  updatedAt: Type.String(),
+  createdAt: Type.String(),
 });
 
 export type TBody = Static<typeof IBody>;
@@ -38,10 +37,10 @@ export type createEntityType = {
   Error: TError;
 };
 
-export const createEntitySchema = {
-  tags: ["Entity"],
+export const createUnitSchema = {
+  tags: ["Units"],
   deprecated: false,
-  summary: "Get user info",
+  summary: "Create new unit",
   description: "Get user info",
   body: IBody,
   response: {

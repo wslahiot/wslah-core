@@ -1,3 +1,4 @@
+import { createUsersSchema } from "./schema/createUserSchema";
 import { getUserSchema, getUserByIdSchema } from "./schema/getUserInfoSchema";
 
 const users = async (fastify: any): Promise<void> => {
@@ -11,7 +12,17 @@ const users = async (fastify: any): Promise<void> => {
       return await fastify.usersService.getUsers();
     },
   });
-
+  // Create a new user
+  fastify.route({
+    method: "POST",
+    url: "/",
+    schema: createUsersSchema,
+    // preHandler: [fastify.authenticate],
+    handler: async (request: any) => {
+      const user = request.body;
+      return await fastify.usersService.createUser(user);
+    },
+  });
   //Example of a route
 
   fastify.route({

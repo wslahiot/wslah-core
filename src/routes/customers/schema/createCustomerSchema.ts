@@ -9,15 +9,15 @@ const IParams = Type.Object({});
 type TParams = Static<typeof IParams>;
 
 const IResponse = Type.Object({
-  id: Type.String(),
+  insertedId: Type.String(),
 });
 
 export const IBody = Type.Object({
   companyId: Type.String(),
+  idNumber: Type.String(),
+  email: Type.String(),
   name: Type.String(),
-  lat: Type.Number(),
-  lng: Type.Number(),
-  description: Type.String(),
+  phone: Type.String(),
 });
 
 export type TBody = Static<typeof IBody>;
@@ -31,18 +31,18 @@ const IError = Type.Object({
 });
 type TError = Static<typeof IError>;
 
-export type createEntityType = {
+export type createCustomerType = {
   Header: THeader;
   Params: TParams;
   Response: TResponse;
   Error: TError;
 };
 
-export const createEntitySchema = {
-  tags: ["Entity"],
+export const createCustomerSchema = {
+  tags: ["Customers"],
   deprecated: false,
-  summary: "Get user info",
-  description: "Get user info",
+  summary: "create customer",
+  description: "create customer",
   body: IBody,
   response: {
     200: IResponse,

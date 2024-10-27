@@ -1,6 +1,6 @@
 import { FastifyRequest } from "fastify";
-import { createEntitySchema } from "./schema/createEntitiySchema";
-import { getEntitySchema } from "./schema/getEntitySchema";
+import { createUnitSchema } from "./schema/createUnitSchema";
+import { getUnitsSchema } from "./schema/getUnitsSchema";
 import { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 
 const entity: FastifyPluginAsyncTypebox = async (
@@ -10,21 +10,21 @@ const entity: FastifyPluginAsyncTypebox = async (
   fastify.route({
     method: "GET",
     url: "/",
-    schema: getEntitySchema,
+    schema: getUnitsSchema,
     // preHandler: [fastify.authenticate],
     handler: async () => {
-      return await fastify.entityService.getEntities();
+      return await fastify.unitsService.getEntities();
     },
   });
 
   fastify.route({
     method: "POST",
     url: "/",
-    schema: createEntitySchema,
+    schema: createUnitSchema,
     // preHandler: [fastify.authenticate],
     handler: async (request: FastifyRequest) => {
       const { body } = request;
-      return await fastify.entityService.createEntity(body);
+      return await fastify.unitsService.createEntity(body);
     },
   });
 };

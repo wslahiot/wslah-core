@@ -14,10 +14,14 @@ const IResponse = Type.Object({
 
 export const IBody = Type.Object({
   companyId: Type.String(),
-  name: Type.String(),
-  lat: Type.Number(),
-  lng: Type.Number(),
-  description: Type.String(),
+  entityId: Type.Optional(Type.String()),
+  deviceType: Type.String(),
+  brand: Type.String(),
+  isPublic: Type.Boolean(),
+  isConnectedToNetwork: Type.Boolean(),
+  status: Type.String(),
+  lastMaintenanceDate: Type.String(),
+  updatedAt: Type.String(),
 });
 
 export type TBody = Static<typeof IBody>;
@@ -38,11 +42,11 @@ export type createEntityType = {
   Error: TError;
 };
 
-export const createEntitySchema = {
-  tags: ["Entity"],
+export const createDeviceSchema = {
+  tags: ["Devices"],
   deprecated: false,
-  summary: "Get user info",
-  description: "Get user info",
+  summary: "Create new device",
+  description: "create new device",
   body: IBody,
   response: {
     200: IResponse,

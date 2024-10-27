@@ -1,5 +1,6 @@
 import { Static, Type } from "@sinclair/typebox";
 
+//? This is for unlock service schema
 const IHeader = Type.Object({
   "x-custom-key": Type.Optional(Type.String()),
 });
@@ -9,15 +10,11 @@ const IParams = Type.Object({});
 type TParams = Static<typeof IParams>;
 
 const IResponse = Type.Object({
-  id: Type.String(),
+  message: Type.String(),
+  status: Type.Number(),
 });
-
 export const IBody = Type.Object({
-  companyId: Type.String(),
-  name: Type.String(),
-  lat: Type.Number(),
-  lng: Type.Number(),
-  description: Type.String(),
+  id: Type.String(),
 });
 
 export type TBody = Static<typeof IBody>;
@@ -38,11 +35,15 @@ export type createEntityType = {
   Error: TError;
 };
 
-export const createEntitySchema = {
-  tags: ["Entity"],
+export type unlockSchemaType = {
+  Response: TBody;
+};
+
+export const unlockTtlockSchema = {
+  tags: ["TTLock"],
   deprecated: false,
-  summary: "Get user info",
-  description: "Get user info",
+  summary: "unlock lock",
+  description: "unlock lock",
   body: IBody,
   response: {
     200: IResponse,
