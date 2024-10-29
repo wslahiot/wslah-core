@@ -11,7 +11,7 @@ const entity: FastifyPluginAsyncTypebox = async (
     method: "GET",
     url: "/",
     schema: getEntitySchema,
-    // preHandler: [fastify.authenticate],
+    preHandler: [fastify.authenticate],
     handler: async () => {
       return await fastify.entityService.getEntities();
     },
@@ -21,7 +21,7 @@ const entity: FastifyPluginAsyncTypebox = async (
     method: "POST",
     url: "/",
     schema: createEntitySchema,
-    // preHandler: [fastify.authenticate],
+    preHandler: [fastify.authenticate],
     handler: async (request: FastifyRequest) => {
       const { body } = request;
       return await fastify.entityService.createEntity(body);

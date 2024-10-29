@@ -27,15 +27,21 @@ export default fp<FastifyJWTOptions>(async (fastify) => {
     }
   });
 
-  fastify.decorate("decode", async function (token, reply) {
+  fastify.decorate("decode", function (request) {
     try {
-      const res = await fastify.jwt.decode(token);
-      reply.send(res);
+      let token = request;
+      if (token.includes("Bearer")) {
+        token = token.split(" ")[1];
+      }
+      const res = fastify.jwt.decode(token);
+
+      if (!res) {
+        throw new Error("Invalid token");
+      }
+
+      return res;
     } catch (err: any) {
-      console.log(err);
-      reply
-        .code(500)
-        .send({ message: "Failed to decode token", error: err.message });
+      return { error: err.message };
     }
   });
 });
@@ -46,6 +52,6 @@ declare module "fastify" {
       request: FastifyRequest,
       reply: FastifyReply
     ) => Promise<void>;
-    decode: (token: string, reply: FastifyReply) => Promise<void>;
+    decode: (token: string) => any;
   }
 }

@@ -11,7 +11,7 @@ const company: FastifyPluginAsyncTypebox = async (
     method: "GET",
     url: "/",
     schema: getCompanySchema,
-    // preHandler: [fastify.authenticate],
+    preHandler: [fastify.authenticate],
     handler: async () => {
       return await fastify.companyService.getCompanies();
     },
@@ -21,7 +21,7 @@ const company: FastifyPluginAsyncTypebox = async (
     method: "POST",
     url: "/",
     schema: createCompanySchema,
-    // preHandler: [fastify.authenticate],
+    preHandler: [fastify.authenticate],
     handler: async (request: FastifyRequest) => {
       const { body } = request;
       return await fastify.companyService.createCompany(body);

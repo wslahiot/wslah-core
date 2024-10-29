@@ -15,7 +15,7 @@ const Ttlock: FastifyPluginAsyncTypebox = async (
     method: "POST",
     url: "/unlock",
     schema: getDeviceSchema,
-    // preHandler: [fastify.authenticate],
+    preHandler: [fastify.authenticate],
     handler: async () => {
       return await fastify.ttlockService.unlcok;
     },
@@ -25,7 +25,7 @@ const Ttlock: FastifyPluginAsyncTypebox = async (
     method: "POST",
     url: "/lock",
     schema: lockTtlockSchema,
-    // preHandler: [fastify.authenticate],
+    preHandler: [fastify.authenticate],
     handler: async (request: FastifyRequest) => {
       const { id } = request.body as lockBody;
 
