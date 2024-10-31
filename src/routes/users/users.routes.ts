@@ -7,7 +7,7 @@ const users = async (fastify: any): Promise<void> => {
     method: "GET",
     url: "/",
     schema: getUserSchema,
-    // preHandler: [fastify.authenticate],
+    preHandler: [fastify.authenticate],
     handler: async () => {
       return await fastify.usersService.getUsers();
     },
@@ -17,7 +17,7 @@ const users = async (fastify: any): Promise<void> => {
     method: "POST",
     url: "/",
     schema: createUsersSchema,
-    // preHandler: [fastify.authenticate],
+    preHandler: [fastify.authenticate],
     handler: async (request: any) => {
       const user = request.body;
       return await fastify.usersService.createUser(user);

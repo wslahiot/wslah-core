@@ -38,7 +38,7 @@ export type getSubscriptionInfoSchemaType = {
 };
 
 export const getSubscriptionModelSchema = {
-  tags: ["Subscription items"],
+  tags: ["Subscription Model"],
   deprecated: false,
   summary: "Get subscription item by id info",
   description: "Get subscription item by id info",

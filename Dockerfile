@@ -1,20 +1,22 @@
-# Fetching the minified node image on apline linux
+# Use the Node.js alpine image
 FROM node:18-alpine
 
-# Setting up the work directory
+# Set up the working directory
 WORKDIR /app
 
-# COPY package.json
-COPY package.json /app
+# Copy package files for dependency installation
+COPY package*.json ./
 
-# Installing dependencies
+# Install dependencies
 RUN npm install
 
-# Copying all the files in our project
-COPY . /app
+# Copy the entire project
+COPY . .
 
-# Exposing server port
+
+
+# Expose the application port
 EXPOSE 4000
 
-# Starting our application
-CMD [ 'npm' , 'start' ]
+# Start the compiled JavaScript file
+CMD ["npm", "start"]

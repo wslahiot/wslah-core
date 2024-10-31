@@ -39,7 +39,7 @@ export type createSubscriptionType = {
 };
 
 export const createSubscriptionModelSchema = {
-  tags: ["Subscriptions"],
+  tags: ["Subscription Model"],
   deprecated: false,
   summary: "create subscription model",
   description: "create subscription model",

@@ -7,7 +7,7 @@ export interface TtlockTokenPluginOptions {
 }
 
 const mongoPlugin = fp<TtlockTokenPluginOptions>(async (fastify, opts) => {
-  const uri = process.env.WSLAH_DB_CONNECTION as string;
+  const uri = process.env.DATABASE_URL as string;
 
   const client = new MongoClient(uri);
   await client.connect();
