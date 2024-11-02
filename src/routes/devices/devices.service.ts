@@ -5,36 +5,37 @@ import {
   TResponse as createCompanyResponse,
   TBody as createDeviceBody,
 } from "./schema/createDeviceSchema";
+import { decodeType } from "../../plugins/authenticate";
 
 export default fp(async (fastify) => {
-  const getDevices = async () => {
+  const getDevices = async (userInfo: decodeType) => {
     const result = await fastify.mongo.collection("devices").find().toArray();
 
     return result;
   };
 
-  const createDevice = async (data: createDeviceBody) => {
+  const createDevice = async (userInfo: decodeType, data: createDeviceBody) => {
     console.log(data); // Ensure sensitive data is handled securely in production
 
-    const payload = {
-      companyId: data.companyId,
-      entityId: data?.entityId || null,
-      deviceType: data.deviceType,
-      brand: data.brand,
-      isPublic: data.isPublic,
-      isConnectedToNetwork: data.isConnectedToNetwork,
-      status: data.status,
-      lastMaintenanceDate: data.lastMaintenanceDate,
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-    };
+    if (data.length === 0) {
+      throw new Error("No data provided");
+    }
+
+    const payload = data.map((item) => {
+      return {
+        ...item,
+        companyId: userInfo.companyId,
+        createdAt: new Date().toISOString(),
+        createdBy: userInfo.email,
+      };
+    });
 
     try {
       const result = await fastify.mongo
         .collection("devices")
-        .insertOne(payload);
+        .insertMany(payload);
       console.log("Insert successful:", result);
-      return { id: result.insertedId };
+      return { message: "inserted successfully" };
     } catch (error: any) {
       console.error("Failed to insert unit:", error);
       throw new Error("Failed to insert unit: " + error.message);
@@ -52,8 +53,9 @@ export default fp(async (fastify) => {
 declare module "fastify" {
   interface FastifyInstance {
     devicesService: {
-      getDevices: () => Promise<getDevicesSchema | null>;
+      getDevices: (userInfo: decodeType) => Promise<getDevicesSchema | null>;
       createDevice: (
+        userInfo: decodeType,
         data: createDeviceBody
       ) => Promise<createCompanyResponse | null>;
     };

@@ -9,20 +9,22 @@ const IParams = Type.Object({});
 type TParams = Static<typeof IParams>;
 
 const IResponse = Type.Object({
-  id: Type.String(),
+  message: Type.String(),
 });
 
-export const IBody = Type.Object({
-  companyId: Type.String(),
-  entityId: Type.Optional(Type.String()),
-  deviceType: Type.String(),
-  brand: Type.String(),
-  isPublic: Type.Boolean(),
-  isConnectedToNetwork: Type.Boolean(),
-  status: Type.String(),
-  lastMaintenanceDate: Type.String(),
-  updatedAt: Type.String(),
-});
+export const IBody = Type.Array(
+  Type.Object({
+    companyId: Type.String(),
+    unitId: Type.Optional(Type.String()),
+    deviceType: Type.String(),
+    brand: Type.String(),
+    isPublic: Type.Boolean(),
+    isConnectedToNetwork: Type.Boolean(),
+    status: Type.String(),
+    lastMaintenanceDate: Type.String(),
+    updatedAt: Type.String(),
+  })
+);
 
 export type TBody = Static<typeof IBody>;
 

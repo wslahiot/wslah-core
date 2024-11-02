@@ -2,6 +2,15 @@ import fp from "fastify-plugin";
 import fastifyJwt, { FastifyJWTOptions } from "@fastify/jwt";
 import axios from "axios";
 
+export type decodeType = {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  companyId: string;
+  iat: number;
+};
+
 export default fp<FastifyJWTOptions>(async (fastify) => {
   fastify.register(fastifyJwt, {
     secret: process.env.SECRET_KEY || "secret",
