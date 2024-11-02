@@ -13,22 +13,26 @@ export default fp(async (fastify) => {
       .collection("subscriptions")
       .aggregate([
         {
-          $lookup: {
-            from: "subscriptionModel", // The collection to join
-            localField: "subscriptionModelId", // Field in the "subscriptions" collection
-            foreignField: "_id", // Field in the "subscriptionModel" collection
-            as: "subscriptionModelDetails", // Name for the joined data
+          // Convert subscriptionModelId to ObjectId
+          $addFields: {
+            subscriptionModelId: { $toObjectId: "$subscriptionModelId" },
           },
         },
-        // {
-        //   $unwind: "$subscriptionModelDetails", // Optional: if each subscription has only one model
-        // },
+        {
+          $lookup: {
+            from: "subscriptionModel",
+            localField: "subscriptionModelId",
+            foreignField: "_id",
+            as: "subscriptionModelDetails",
+          },
+        },
+        // Uncomment if each subscription has only one model:
+        // { $unwind: "$subscriptionModelDetails" },
       ])
 
       // .find()
       .toArray();
 
-    console.log({ result });
     return result;
   };
 
@@ -39,30 +43,37 @@ export default fp(async (fastify) => {
       return "No user found";
     }
 
+    // Find the subscription model
     const foundSubscriptionModel = await fastify.mongo
       .collection("subscriptionModel")
       .findOne({
         _id: new ObjectId(body.subscriptionModelId),
       });
 
-    console.log({ foundSubscriptionModel });
     if (!foundSubscriptionModel) {
       return "No subscription model found";
     }
 
+    // Prepare the payload with unique id and other fields
     const payload = {
-      // id: new ObjectId(),
+      id: new ObjectId().toString(), // Ensure id is unique
       ...rest,
-      price: foundSubscriptionModel.price,
+      pricePerMonth:
+        parseInt(foundSubscriptionModel.pricePerUnit) *
+          parseInt(foundSubscriptionModel.pricePerUnit) || 0,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
     };
 
-    console.log({ payload });
-    const result = await fastify.mongo
-      .collection("subscriptions")
-      .insertOne(payload);
-    return result;
+    try {
+      const result = await fastify.mongo
+        .collection("subscriptions")
+        .insertOne(payload);
+      return result;
+    } catch (error) {
+      console.error("Error creating subscription:", error);
+      throw new Error("Failed to create subscription");
+    }
   };
 
   // Decorate the fastify instance with the departmentService

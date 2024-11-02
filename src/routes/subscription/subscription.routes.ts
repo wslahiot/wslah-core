@@ -10,7 +10,7 @@ const users = async (fastify: any): Promise<void> => {
     method: "GET",
     url: "/",
     schema: getSubscriptionSchema,
-    preHandler: [fastify.authenticate],
+    // preHandler: [fastify.authenticate],
     handler: async () => {
       return await fastify.subscriptionService.getSubscriptions();
     },
@@ -20,7 +20,7 @@ const users = async (fastify: any): Promise<void> => {
     method: "POST",
     url: "/",
     schema: createSubscriptionsSchema,
-    preHandler: [fastify.authenticate],
+    // preHandler: [fastify.authenticate],
     handler: async (request: any) => {
       const data = request.body;
       const decoded = fastify.decode(request.headers.authorization);
