@@ -24,7 +24,8 @@ const entity: FastifyPluginAsyncTypebox = async (
     preHandler: [fastify.authenticate],
     handler: async (request: FastifyRequest) => {
       const { body } = request;
-      return await fastify.entityService.createEntity(body);
+      const decoded = fastify.decode(request.headers.authorization);
+      return await fastify.entityService.createEntity(decoded, body);
     },
   });
 };

@@ -5,21 +5,40 @@ import {
   TResponse as createCompanyResponse,
   TBody as createUnitBody,
 } from "./schema/createUnitSchema";
+import { decodeType } from "../../plugins/authenticate";
+import { ObjectId } from "mongodb";
 
 export default fp(async (fastify) => {
   const getUnits = async () => {
-    const result = await fastify.mongo.collection("entities").find().toArray();
+    const result = await fastify.mongo.collection("units").find({}).toArray();
 
     return result;
   };
 
-  const createUnit = async (data: createUnitBody) => {
-    console.log(data); // Ensure sensitive data is handled securely in production
+  const getUnitsByEntityId = async (entityId: string) => {
+    const result = await fastify.mongo
+      .collection("units")
+      .find({
+        entityId: entityId,
+      })
+      .toArray();
+
+    return result;
+  };
+
+  const getUnitById = async (id: string) => {
+    const result = await fastify.mongo.collection("units").findOne({
+      _id: new ObjectId(id),
+    });
+
+    return result;
+  };
+
+  const createUnit = async (userInfo: decodeType, data: createUnitBody) => {
     const payload = {
-      entityId: data.entityId,
-      unitName: data.unitName,
-      unitType: data.unitType,
-      isPublic: data.isPublic,
+      companyId: userInfo?.companyId,
+      entityId: data?.entityId,
+      name: data.name,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
     };
@@ -39,14 +58,19 @@ export default fp(async (fastify) => {
   fastify.decorate("unitsService", {
     getUnits,
     createUnit,
+    getUnitsByEntityId,
+    getUnitById,
   });
 });
 
 declare module "fastify" {
   interface FastifyInstance {
     unitsService: {
-      getUnits: () => Promise<getUnitsSchema | null>;
+      getUnits: (userInfo: decodeType) => Promise<getUnitsSchema | null>;
+      getUnitsByEntityId: (entityId: string) => Promise<getUnitsSchema | null>;
+      getUnitById: (id: string) => Promise<getUnitsSchema | null>;
       createUnit: (
+        userInfo: decodeType,
         data: createUnitBody
       ) => Promise<createCompanyResponse | null>;
     };

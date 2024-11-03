@@ -1,7 +1,11 @@
 import { FastifyRequest } from "fastify";
 import { createUnitSchema } from "./schema/createUnitSchema";
-import { getUnitsSchema } from "./schema/getUnitsSchema";
+import {
+  getUnitsByEntityIdSchema,
+  getUnitsSchema,
+} from "./schema/getUnitsSchema";
 import { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
+import { getUnitsByIdSchema } from "./schema/getUnitByIdSchema";
 
 const entity: FastifyPluginAsyncTypebox = async (
   fastify: any
@@ -12,8 +16,32 @@ const entity: FastifyPluginAsyncTypebox = async (
     url: "/",
     schema: getUnitsSchema,
     preHandler: [fastify.authenticate],
-    handler: async () => {
-      return await fastify.unitsService.getEntities();
+    handler: async (request: FastifyRequest) => {
+      const decoded = fastify.decode(request.headers.authorization);
+      return await fastify.unitsService.getUnits(decoded);
+    },
+  });
+
+  fastify.route({
+    method: "GET",
+    url: "/entity/:id",
+    schema: getUnitsByEntityIdSchema,
+    preHandler: [fastify.authenticate],
+    handler: async (request: any) => {
+      const { id } = request.params;
+
+      return await fastify.unitsService.getUnitsByEntityId(id);
+    },
+  });
+
+  fastify.route({
+    method: "GET",
+    url: "/:id",
+    schema: getUnitsByIdSchema,
+    preHandler: [fastify.authenticate],
+    handler: async (request: any) => {
+      const { id } = request.params;
+      return await fastify.unitsService.getUnitById(id);
     },
   });
 
@@ -24,7 +52,8 @@ const entity: FastifyPluginAsyncTypebox = async (
     preHandler: [fastify.authenticate],
     handler: async (request: FastifyRequest) => {
       const { body } = request;
-      return await fastify.unitsService.createEntity(body);
+      const decoded = fastify.decode(request.headers.authorization);
+      return await fastify.unitsService.createUnit(decoded, body);
     },
   });
 };

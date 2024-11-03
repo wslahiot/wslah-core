@@ -5,19 +5,23 @@ import {
   TResponse as createCompanyResponse,
   TBody as createEntityBody,
 } from "./schema/createEntitiySchema";
+import { decodeType } from "../../plugins/authenticate";
 
 export default fp(async (fastify) => {
-  const getEntities = async () => {
-    const result = await fastify.mongo.collection("entities").find().toArray();
+  const getEntities = async (userInfo: decodeType) => {
+    const result = await fastify.mongo
+      .collection("entities")
+      .find({
+        companyId: userInfo.companyId,
+      })
+      .toArray();
 
     return result;
   };
 
-  const createEntity = async (data: createEntityBody) => {
-    console.log(data); // Ensure sensitive data is handled securely in production
-
+  const createEntity = async (userInfo: decodeType, data: createEntityBody) => {
     const payload = {
-      companyId: data.companyId,
+      companyId: userInfo.companyId,
       name: data.name,
       lat: data.lat,
       lng: data.lng,
@@ -30,7 +34,7 @@ export default fp(async (fastify) => {
       const result = await fastify.mongo
         .collection("entities")
         .insertOne(payload);
-      console.log("Insert successful:", result);
+
       return { id: result.insertedId };
     } catch (error: any) {
       console.error("Failed to insert company:", error);
@@ -49,8 +53,9 @@ export default fp(async (fastify) => {
 declare module "fastify" {
   interface FastifyInstance {
     entityService: {
-      getEntities: () => Promise<getCompaniesSchema | null>;
+      getEntities: (userInfo: decodeType) => Promise<getCompaniesSchema | null>;
       createEntity: (
+        userInfo: decodeType,
         data: createEntityBody
       ) => Promise<createCompanyResponse | null>;
     };

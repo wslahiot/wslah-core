@@ -8,15 +8,15 @@ type THeader = Static<typeof IHeader>;
 const IParams = Type.Object({});
 type TParams = Static<typeof IParams>;
 
-const IResponse = Type.Object({});
+const IResponse = Type.Object({
+  id: Type.String(),
+});
 
 export const IBody = Type.Object({
-  entityId: Type.String(),
-  unitName: Type.String(),
-  unitType: Type.String(),
-  isPublic: Type.Boolean(),
-  updatedAt: Type.String(),
-  createdAt: Type.String(),
+  entityId: Type.Optional(Type.String()),
+  name: Type.String(),
+  // unitType: Type.String(),
+  // isPublic: Type.Boolean(),
 });
 
 export type TBody = Static<typeof IBody>;

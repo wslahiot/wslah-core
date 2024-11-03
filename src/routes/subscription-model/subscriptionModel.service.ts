@@ -31,7 +31,6 @@ export default fp(async (fastify) => {
     if (!foundSubscriptionModel) {
       return "No subscription model found";
     }
-    console.log({ foundSubscriptionModel });
 
     return;
     const result = fastify.mongo.collection("subscriptionModel").insertOne({

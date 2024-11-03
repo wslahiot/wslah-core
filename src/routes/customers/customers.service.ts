@@ -18,21 +18,19 @@ import {
 
 export default fp(async (fastify) => {
   const getCustomers = async () => {
-    console.log("getCustomers");
     const result = await fastify.mongo.collection("customers").find().toArray();
-    console.log(result);
+
     return result;
   };
 
   const getCustomersById = async (id: string) => {
-    console.log("getCustomers", id);
     const result = await fastify.mongo
       .collection("customers")
       .find({
         idNumber: id,
       })
       .toArray();
-    console.log(result);
+
     return result;
   };
 

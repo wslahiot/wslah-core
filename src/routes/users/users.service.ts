@@ -6,7 +6,7 @@ import { createUserType, TBody as BodySchema } from "./schema/createUserSchema";
 export default fp(async (fastify) => {
   const getUsers = async () => {
     const result = await fastify.mongo.collection("users").find().toArray();
-    console.log(result);
+
     return result;
   };
 

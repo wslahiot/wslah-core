@@ -13,7 +13,6 @@ const IResponse = Type.Object({
 });
 
 export const IBody = Type.Object({
-  companyId: Type.String(),
   name: Type.String(),
   lat: Type.Number(),
   lng: Type.Number(),

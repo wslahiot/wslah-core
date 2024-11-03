@@ -9,17 +9,15 @@ const IParams = Type.Object({
 });
 // type TParams = Static<typeof IParams>;
 
-const IResponse = Type.Array(
-  Type.Object({
-    // id: Type.String(),
-    entityId: Type.String(),
-    name: Type.String(),
-    // unitType: Type.String(),
-    // isPublic: Type.Boolean(),
-    updatedAt: Type.String(),
-    createdAt: Type.String(),
-  })
-);
+const IResponse = Type.Object({
+  // id: Type.String(),
+  entityId: Type.String(),
+  name: Type.String(),
+  // unitType: Type.String(),
+  // isPublic: Type.Boolean(),
+  updatedAt: Type.String(),
+  createdAt: Type.String(),
+});
 
 export type TResponse = Static<typeof IResponse>;
 
@@ -42,7 +40,7 @@ export const getUnitsSchema = {
   },
 };
 
-export const getUnitsByEntityIdSchema = {
+export const getUnitsByIdSchema = {
   ...getUnitsSchema,
   params: IParams,
 };

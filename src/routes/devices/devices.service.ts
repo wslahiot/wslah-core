@@ -20,8 +20,6 @@ export default fp(async (fastify) => {
   };
 
   const createDevice = async (userInfo: decodeType, data: createDeviceBody) => {
-    console.log(data); // Ensure sensitive data is handled securely in production
-
     if (data.length === 0) {
       throw new Error("No data provided");
     }
@@ -36,10 +34,8 @@ export default fp(async (fastify) => {
     });
 
     try {
-      const result = await fastify.mongo
-        .collection("devices")
-        .insertMany(payload);
-      console.log("Insert successful:", result);
+      await fastify.mongo.collection("devices").insertMany(payload);
+
       return { message: "inserted successfully" };
     } catch (error: any) {
       console.error("Failed to insert unit:", error);
