@@ -9,7 +9,12 @@ import { decodeType } from "../../plugins/authenticate";
 
 export default fp(async (fastify) => {
   const getDevices = async (userInfo: decodeType) => {
-    const result = await fastify.mongo.collection("devices").find().toArray();
+    const result = await fastify.mongo
+      .collection("devices")
+      .find({
+        companyId: userInfo.companyId,
+      })
+      .toArray();
 
     return result;
   };
@@ -26,7 +31,7 @@ export default fp(async (fastify) => {
         ...item,
         companyId: userInfo.companyId,
         createdAt: new Date().toISOString(),
-        createdBy: userInfo.email,
+        updatedAt: new Date().toISOString(),
       };
     });
 

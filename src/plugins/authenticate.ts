@@ -20,7 +20,7 @@ export default fp<FastifyJWTOptions>(async (fastify) => {
     //? User wslah-auth to verify token
     try {
       await axios
-        .get("http://localhost:4000/auth/verify", {
+        .get("https://wslah-auth.fly.dev/auth/verify", {
           headers: {
             Authorization: request.headers.authorization,
           },

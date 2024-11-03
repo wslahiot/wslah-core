@@ -30,7 +30,7 @@ const IError = Type.Object({
 });
 
 export const getDeviceSchema = {
-  tags: ["Devices"],
+  tags: ["TTLock"],
   deprecated: false,
   summary: "Get devices info",
   description: "Get devices info",

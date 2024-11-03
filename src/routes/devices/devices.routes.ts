@@ -12,8 +12,9 @@ const entity: FastifyPluginAsyncTypebox = async (
     url: "/",
     schema: getDeviceSchema,
     preHandler: [fastify.authenticate],
-    handler: async () => {
-      return await fastify.devicesService.getEntities();
+    handler: async (request: any) => {
+      const decoded = fastify.decode(request.headers.authorization);
+      return await fastify.devicesService.getDevices(decoded);
     },
   });
 
@@ -24,7 +25,8 @@ const entity: FastifyPluginAsyncTypebox = async (
     preHandler: [fastify.authenticate],
     handler: async (request: FastifyRequest) => {
       const { body } = request;
-      return await fastify.devicesService.createEntity(body);
+      const decoded = fastify.decode(request.headers.authorization);
+      return await fastify.devicesService.createDevice(decoded, body);
     },
   });
 };

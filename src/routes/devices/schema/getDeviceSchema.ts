@@ -8,15 +8,41 @@ import { Static, Type } from "@sinclair/typebox";
 // const IParams = Type.Object({});
 // type TParams = Static<typeof IParams>;
 
-const IResponse = Type.Array(
+export const IBody = Type.Array(
   Type.Object({
-    unitId: Type.String(),
+    companyId: Type.String(),
+    unitId: Type.Optional(Type.String()),
+    deviceId: Type.String(),
+    name: Type.String(),
     deviceType: Type.String(),
     brand: Type.String(),
-    isPublic: Type.Boolean(),
-    isConnectedToNetwork: Type.Boolean(),
-    status: Type.String(),
+    isPublic: Type.Optional(Type.Boolean()),
+    isConnectedToNetwork: Type.Optional(Type.Boolean()),
+    status: Type.Boolean(),
     lastMaintenanceDate: Type.String(),
+    user: Type.Optional(
+      Type.Object({
+        companyId: Type.String(),
+      })
+    ),
+    // updatedAt: Type.String(),
+    // createdAt: Type.String(),
+  })
+);
+
+const IResponse = Type.Array(
+  Type.Object({
+    // companyId: Type.String(),
+    unitId: Type.Optional(Type.String()),
+    deviceId: Type.String(),
+    name: Type.String(),
+    deviceType: Type.String(),
+    brand: Type.String(),
+    isPublic: Type.Optional(Type.Boolean()),
+    isConnectedToNetwork: Type.Optional(Type.Boolean()),
+    status: Type.Boolean(),
+    lastMaintenanceDate: Type.String(),
+    createdAt: Type.String(),
     updatedAt: Type.String(),
   })
 );

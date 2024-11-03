@@ -9,30 +9,16 @@ const IParams = Type.Object({});
 type TParams = Static<typeof IParams>;
 
 const IResponse = Type.Object({
-  message: Type.String(),
+  insertedId: Type.String(),
 });
 
-export const IBody = Type.Array(
-  Type.Object({
-    companyId: Type.String(),
-    unitId: Type.Optional(Type.String()),
-    deviceId: Type.String(),
-    name: Type.String(),
-    deviceType: Type.String(),
-    brand: Type.String(),
-    isPublic: Type.Optional(Type.Boolean()),
-    isConnectedToNetwork: Type.Optional(Type.Boolean()),
-    status: Type.Boolean(),
-    lastMaintenanceDate: Type.String(),
-    user: Type.Optional(
-      Type.Object({
-        companyId: Type.String(),
-      })
-    ),
-    // updatedAt: Type.String(),
-    // createdAt: Type.String(),
-  })
-);
+export const IBody = Type.Object({
+  companyId: Type.String(),
+  idNumber: Type.String(),
+  email: Type.String(),
+  name: Type.String(),
+  phone: Type.String(),
+});
 
 export type TBody = Static<typeof IBody>;
 
@@ -45,18 +31,18 @@ const IError = Type.Object({
 });
 type TError = Static<typeof IError>;
 
-export type createEntityType = {
+export type createCustomerType = {
   Header: THeader;
   Params: TParams;
   Response: TResponse;
   Error: TError;
 };
 
-export const createDeviceSchema = {
-  tags: ["Devices"],
+export const createCustomerSchema = {
+  tags: ["Customers"],
   deprecated: false,
-  summary: "Create new device",
-  description: "create new device",
+  summary: "create customer",
+  description: "create customer",
   body: IBody,
   response: {
     200: IResponse,
