@@ -39,6 +39,8 @@ export default fp(async (fastify) => {
       companyId: userInfo?.companyId,
       entityId: data?.entityId,
       name: data.name,
+      isPublic: data.isPublic,
+      lastMaintenanceDate: data.lastMaintenanceDate,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
     };

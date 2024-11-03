@@ -10,11 +10,12 @@ const IParams = Type.Object({
 // type TParams = Static<typeof IParams>;
 
 const IResponse = Type.Object({
-  // id: Type.String(),
+  _id: Type.String(),
   entityId: Type.String(),
   name: Type.String(),
   // unitType: Type.String(),
-  // isPublic: Type.Boolean(),
+  isPublic: Type.Boolean({ default: false }),
+  lastMaintenanceDate: Type.Optional(Type.String({ default: "" })),
   updatedAt: Type.String(),
   createdAt: Type.String(),
 });

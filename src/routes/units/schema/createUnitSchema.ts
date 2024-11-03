@@ -16,7 +16,8 @@ export const IBody = Type.Object({
   entityId: Type.Optional(Type.String()),
   name: Type.String(),
   // unitType: Type.String(),
-  // isPublic: Type.Boolean(),
+  isPublic: Type.Boolean({ default: false }),
+  lastMaintenanceDate: Type.Optional(Type.String({ default: "" })),
 });
 
 export type TBody = Static<typeof IBody>;

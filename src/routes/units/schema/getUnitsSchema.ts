@@ -11,11 +11,12 @@ const IParams = Type.Object({
 
 const IResponse = Type.Array(
   Type.Object({
-    // id: Type.String(),
+    _id: Type.String(),
     entityId: Type.String(),
     name: Type.String(),
     // unitType: Type.String(),
-    // isPublic: Type.Boolean(),
+    isPublic: Type.Boolean({ default: false }),
+    lastMaintenanceDate: Type.Optional(Type.String()),
     updatedAt: Type.String(),
     createdAt: Type.String(),
   })
