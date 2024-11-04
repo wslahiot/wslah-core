@@ -16,10 +16,10 @@ export const IBody = Type.Array(
     name: Type.String(),
     deviceType: Type.String(),
     brand: Type.String(),
-    isPublic: Type.Optional(Type.Boolean()),
+
     isConnectedToNetwork: Type.Optional(Type.Boolean()),
     status: Type.Boolean(),
-    lastMaintenanceDate: Type.String(),
+
     user: Type.Optional(
       Type.Object({
         companyId: Type.String(),
