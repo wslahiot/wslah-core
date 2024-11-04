@@ -19,6 +19,7 @@ export const IBody = Type.Array(
     deviceId: Type.String(),
     name: Type.String(),
     deviceType: Type.String(),
+    isSync: Type.Boolean({ default: false }),
     brand: Type.String(),
     isPublic: Type.Optional(Type.Boolean()),
     isConnectedToNetwork: Type.Optional(Type.Boolean()),
