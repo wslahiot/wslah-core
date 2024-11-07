@@ -29,7 +29,6 @@ const entity: FastifyPluginAsyncTypebox = async (
     preHandler: [fastify.authenticate],
     handler: async (request: any) => {
       const { id } = request.params;
-
       return await fastify.unitsService.getUnitsByEntityId(id);
     },
   });

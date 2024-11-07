@@ -14,6 +14,7 @@ const IResponse = Type.Object({
 
 export const IBody = Type.Array(
   Type.Object({
+    _id: Type.String(),
     companyId: Type.String(),
     unitId: Type.Optional(Type.String()),
     deviceId: Type.String(),
@@ -23,11 +24,6 @@ export const IBody = Type.Array(
     brand: Type.String(),
     isConnectedToNetwork: Type.Optional(Type.Boolean()),
     status: Type.Boolean(),
-    user: Type.Optional(
-      Type.Object({
-        companyId: Type.String(),
-      })
-    ),
     // updatedAt: Type.String(),
     // createdAt: Type.String(),
   })

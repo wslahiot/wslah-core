@@ -32,9 +32,9 @@ export default fp(async (fastify) => {
       return "No subscription model found";
     }
 
-    return;
     const result = fastify.mongo.collection("subscriptionModel").insertOne({
       ...body,
+      _id: new ObjectId(),
     });
 
     return result;

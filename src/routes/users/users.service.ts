@@ -2,6 +2,7 @@ import fp from "fastify-plugin";
 
 import { TResponse as GetUserSchemaBody } from "./schema/getUserInfoSchema";
 import { createUserType, TBody as BodySchema } from "./schema/createUserSchema";
+import { ObjectId } from "mongodb";
 
 export default fp(async (fastify) => {
   const getUsers = async () => {
@@ -21,6 +22,7 @@ export default fp(async (fastify) => {
 
     const result = await fastify.mongo.collection("users").insertOne({
       ...user,
+      _id: new ObjectId(),
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
     });

@@ -6,6 +6,7 @@ import {
   TBody as createEntityBody,
 } from "./schema/createEntitiySchema";
 import { decodeType } from "../../plugins/authenticate";
+import { ObjectId } from "mongodb";
 
 export default fp(async (fastify) => {
   const getEntities = async (userInfo: decodeType) => {
@@ -21,6 +22,7 @@ export default fp(async (fastify) => {
 
   const createEntity = async (userInfo: decodeType, data: createEntityBody) => {
     const payload = {
+      _id: new ObjectId(),
       companyId: userInfo.companyId,
       name: data.name,
       lat: data.lat,

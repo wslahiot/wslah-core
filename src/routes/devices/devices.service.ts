@@ -6,6 +6,7 @@ import {
   TBody as createDeviceBody,
 } from "./schema/createDeviceSchema";
 import { decodeType } from "../../plugins/authenticate";
+import { ObjectId } from "mongodb";
 
 export default fp(async (fastify) => {
   const getDevices = async (userInfo: decodeType) => {
@@ -27,6 +28,7 @@ export default fp(async (fastify) => {
     const payload = data.map((item) => {
       return {
         ...item,
+        _id: new ObjectId(),
         companyId: userInfo.companyId,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),

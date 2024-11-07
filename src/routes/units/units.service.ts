@@ -36,6 +36,7 @@ export default fp(async (fastify) => {
 
   const createUnit = async (userInfo: decodeType, data: createUnitBody) => {
     const payload = {
+      _id: new ObjectId(),
       companyId: userInfo?.companyId,
       entityId: data?.entityId,
       name: data.name,
