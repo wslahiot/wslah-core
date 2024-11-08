@@ -6,7 +6,7 @@ import {
   TBody as createUnitBody,
 } from "./schema/createUnitSchema";
 import { decodeType } from "../../plugins/authenticate";
-import { ObjectId } from "mongodb";
+
 import { v4 } from "uuid";
 
 export default fp(async (fastify) => {
@@ -48,9 +48,8 @@ export default fp(async (fastify) => {
     };
 
     try {
-      const result = await fastify.mongo.collection("units").insertOne(payload);
-      console.log("Insert successful:", result);
-      return { id: result.insertedId };
+      await fastify.mongo.collection("units").insertOne(payload);
+      return { message: "success" };
     } catch (error: any) {
       console.error("Failed to insert unit:", error);
       throw new Error("Failed to insert unit: " + error.message);

@@ -11,7 +11,7 @@ const entity: FastifyPluginAsyncTypebox = async (
     method: "GET",
     url: "/",
     schema: getDeviceSchema,
-    preHandler: [fastify.authenticate],
+    // preHandler: [fastify.authenticate],
     handler: async (request: any) => {
       const decoded = fastify.decode(request.headers.authorization);
       return await fastify.devicesService.getDevices(decoded);

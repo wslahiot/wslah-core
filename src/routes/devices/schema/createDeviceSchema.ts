@@ -14,18 +14,17 @@ const IResponse = Type.Object({
 
 export const IBody = Type.Array(
   Type.Object({
-    // id: Type.String(),
     companyId: Type.String(),
-    unitId: Type.Optional(Type.String()),
+    unitId: Type.String(),
     deviceId: Type.String(),
     name: Type.String(),
     deviceType: Type.String(),
     isSync: Type.Boolean({ default: false }),
     brand: Type.String(),
-    isConnectedToNetwork: Type.Optional(Type.Boolean()),
+    isConnectedToNetwork: Type.Boolean(),
     status: Type.Boolean(),
-    // updatedAt: Type.String(),
-    // createdAt: Type.String(),
+    location: Type.Optional(Type.String()),
+    batteryLevel: Type.Optional(Type.Number()),
   })
 );
 

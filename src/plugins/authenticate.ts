@@ -18,7 +18,7 @@ export default fp<FastifyJWTOptions>(async (fastify) => {
 
   fastify.decorate("authenticate", async function (request, reply) {
     //? User wslah-auth to verify token
-    const url = "https://wslah-auth.fly.dev/auth/verify/"; //https://wslah-auth.fly.dev/auth/verify || "http://localhost:4000/auth/verify"  //? For local testing;
+    const url = "https://wslah-auth.fly.dev/auth/verify"; //https://wslah-auth.fly.dev/auth/verify || "http://localhost:4000/auth/verify"  //? For local testing;
     try {
       await axios
         .get(url, {

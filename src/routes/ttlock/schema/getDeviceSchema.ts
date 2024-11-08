@@ -16,7 +16,7 @@ const IResponse = Type.Array(
     isPublic: Type.Boolean(),
     isConnectedToNetwork: Type.Boolean(),
     status: Type.String(),
-    lastMaintenanceDate: Type.String(),
+    // lastMaintenanceDate: Type.String(),
     updatedAt: Type.String(),
   })
 );

@@ -30,7 +30,7 @@ export default fp(async (fastify) => {
         ...item,
         id,
         companyId: userInfo.companyId,
-        createAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
     });
