@@ -10,7 +10,7 @@ type TParams = Static<typeof IParams>;
 
 const IResponse = Type.Array(
   Type.Object({
-    _id: Type.String(),
+    id: Type.String(),
     companyId: Type.String(),
     username: Type.String(),
     password: Type.String(),
@@ -51,7 +51,7 @@ export const getUserByIdSchema = {
 };
 
 export const getUserSchema = {
-  tags: ["users"],
+  tags: ["Users"],
   deprecated: false,
   summary: "Get user info",
   description: "Get user info",

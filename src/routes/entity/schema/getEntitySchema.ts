@@ -10,7 +10,7 @@ import { Static, Type } from "@sinclair/typebox";
 
 const IResponse = Type.Array(
   Type.Object({
-    _id: Type.String(),
+    id: Type.String(),
     companyId: Type.String(),
     name: Type.String(),
     lat: Type.Number(),

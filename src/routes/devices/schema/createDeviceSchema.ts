@@ -14,7 +14,7 @@ const IResponse = Type.Object({
 
 export const IBody = Type.Array(
   Type.Object({
-    _id: Type.String(),
+    // id: Type.String(),
     companyId: Type.String(),
     unitId: Type.Optional(Type.String()),
     deviceId: Type.String(),

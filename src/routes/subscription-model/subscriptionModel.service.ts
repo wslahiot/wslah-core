@@ -5,7 +5,8 @@ import {
   TBody as BodySchema,
   createSubscriptionType,
 } from "./schema/createSubscriptionModelSchema";
-import { ObjectId } from "mongodb";
+
+import { v4 } from "uuid";
 
 export default fp(async (fastify) => {
   const getSubscriptionModels = async () => {
@@ -25,7 +26,7 @@ export default fp(async (fastify) => {
     const foundSubscriptionModel = await fastify.mongo
       .collection("subscriptionModel")
       .findOne({
-        _id: new ObjectId(body.subscriptionId),
+        id: body.subscriptionId,
       });
 
     if (!foundSubscriptionModel) {
@@ -34,7 +35,7 @@ export default fp(async (fastify) => {
 
     const result = fastify.mongo.collection("subscriptionModel").insertOne({
       ...body,
-      _id: new ObjectId(),
+      id: v4(),
     });
 
     return result;

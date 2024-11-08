@@ -13,7 +13,7 @@ type TParams = Static<typeof IParams>;
 const IResponse = Type.Array(
   Type.Object(
     {
-      _id: Type.String(),
+      id: Type.String(),
       companyId: Type.String(),
     },
     {

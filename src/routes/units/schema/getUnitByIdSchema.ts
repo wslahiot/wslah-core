@@ -10,7 +10,7 @@ const IParams = Type.Object({
 // type TParams = Static<typeof IParams>;
 
 const IResponse = Type.Object({
-  _id: Type.String(),
+  id: Type.String(),
   entityId: Type.String(),
   name: Type.String(),
   // unitType: Type.String(),

@@ -1,12 +1,11 @@
 import fp from "fastify-plugin";
-
+import { v4 } from "uuid";
 import { TResponse as getDevicesSchema } from "./schema/getDeviceSchema";
 import {
   TResponse as createCompanyResponse,
   TBody as createDeviceBody,
 } from "./schema/createDeviceSchema";
 import { decodeType } from "../../plugins/authenticate";
-import { ObjectId } from "mongodb";
 
 export default fp(async (fastify) => {
   const getDevices = async (userInfo: decodeType) => {
@@ -26,25 +25,24 @@ export default fp(async (fastify) => {
     }
 
     const payload = data.map((item) => {
+      const id = v4();
       return {
         ...item,
-        _id: new ObjectId(),
+        id,
         companyId: userInfo.companyId,
-        createdAt: new Date().toISOString(),
+        createAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
     });
 
     try {
       await fastify.mongo.collection("devices").insertMany(payload);
-
-      return { message: "inserted successfully" };
+      return { message: "Inserted successfully" };
     } catch (error: any) {
-      console.error("Failed to insert unit:", error);
-      throw new Error("Failed to insert unit: " + error.message);
+      console.error("Failed to insert device:", error);
+      throw new Error("Failed to insert device: " + error.message);
     }
   };
-
   // Decorate the fastify instance with the departmentService
   // @ts-ignore
   fastify.decorate("devicesService", {

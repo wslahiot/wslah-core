@@ -10,16 +10,20 @@ const IParams = Type.Object({
 });
 type TParams = Static<typeof IParams>;
 
-const IResponse = Type.Array(
-  Type.Object({
-    id: Type.String(),
-    name: Type.String(),
-    maxUnits: Type.Number(),
-    minUnits: Type.Number(),
-    model: Type.String(),
-    price: Type.Number(),
-  })
-);
+const IResponse = Type.Object({
+  message: Type.String(),
+});
+
+export const IBody = Type.Object({
+  name: Type.Optional(Type.String()),
+  region: Type.Optional(Type.String()),
+  logo: Type.Optional(Type.String()),
+  address: Type.Optional(Type.String()),
+  phoneNumber: Type.Optional(Type.String()),
+  email: Type.Optional(Type.String()),
+});
+
+export type TBody = Static<typeof IBody>;
 
 export type TResponse = Static<typeof IResponse>;
 
@@ -30,30 +34,26 @@ const IError = Type.Object({
 });
 type TError = Static<typeof IError>;
 
-export type getSubscriptionInfoSchemaType = {
+export type updateCompanyType = {
   Header: THeader;
   Params: TParams;
   Response: TResponse;
   Error: TError;
 };
 
-export const getSubscriptionModelSchema = {
-  tags: ["Subscription Model"],
+export const updateCompanySchema = {
+  tags: ["Company"],
   deprecated: false,
-  summary: "Get subscription item by id info",
-  description: "Get subscription item by id info",
-  headers: IHeader,
+  summary: "Update company",
+  description: "Update company",
+  body: IBody,
+  params: IParams,
   response: {
     200: IResponse,
     400: IError,
     404: IError,
     500: IError,
   },
-};
-
-export const getSubscriptionModelByIdSchema = {
-  ...getSubscriptionModelSchema,
-  params: IParams,
 };
 
 import fp from "fastify-plugin";

@@ -5,8 +5,9 @@ import {
   TBody as BodySchema,
   createSubscriptionType,
 } from "./schema/createSubscriptionSchema";
-import { ObjectId } from "mongodb";
+
 import { decodeType } from "../../plugins/authenticate";
+import { v4 } from "uuid";
 
 export default fp(async (fastify) => {
   const getSubscriptions = async (userInfo: decodeType) => {
@@ -28,7 +29,7 @@ export default fp(async (fastify) => {
           $lookup: {
             from: "subscriptionModel",
             localField: "subscriptionModelId",
-            foreignField: "_id",
+            foreignField: "id",
             as: "subscriptionModelDetails",
           },
         },
@@ -47,7 +48,7 @@ export default fp(async (fastify) => {
     const foundSubscriptionModel = await fastify.mongo
       .collection("subscriptionModel")
       .findOne({
-        _id: new ObjectId(body.subscriptionModelId),
+        id: body.subscriptionModelId,
       });
 
     if (!foundSubscriptionModel) {
@@ -57,7 +58,7 @@ export default fp(async (fastify) => {
     // Prepare the payload with unique id and other fields
     const payload = {
       ...body,
-      _id: new ObjectId(),
+      id: v4(),
       companyId: userInfo.companyId,
       pricePerMonth:
         parseInt(foundSubscriptionModel.pricePerUnit) *

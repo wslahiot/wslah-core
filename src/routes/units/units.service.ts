@@ -7,6 +7,7 @@ import {
 } from "./schema/createUnitSchema";
 import { decodeType } from "../../plugins/authenticate";
 import { ObjectId } from "mongodb";
+import { v4 } from "uuid";
 
 export default fp(async (fastify) => {
   const getUnits = async () => {
@@ -28,7 +29,7 @@ export default fp(async (fastify) => {
 
   const getUnitById = async (id: string) => {
     const result = await fastify.mongo.collection("units").findOne({
-      _id: new ObjectId(id),
+      id,
     });
 
     return result;
@@ -36,7 +37,7 @@ export default fp(async (fastify) => {
 
   const createUnit = async (userInfo: decodeType, data: createUnitBody) => {
     const payload = {
-      _id: new ObjectId(),
+      id: v4(),
       companyId: userInfo?.companyId,
       entityId: data?.entityId,
       name: data.name,

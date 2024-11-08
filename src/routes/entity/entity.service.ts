@@ -6,7 +6,12 @@ import {
   TBody as createEntityBody,
 } from "./schema/createEntitiySchema";
 import { decodeType } from "../../plugins/authenticate";
-import { ObjectId } from "mongodb";
+
+import {
+  TResponse as updateEntityResponse,
+  TBody as updateEntityBody,
+} from "./schema/updateEntitySchema";
+import { v4 } from "uuid";
 
 export default fp(async (fastify) => {
   const getEntities = async (userInfo: decodeType) => {
@@ -20,9 +25,27 @@ export default fp(async (fastify) => {
     return result;
   };
 
+  const updateEntity = async (id: string, data: updateEntityBody) => {
+    // update company with given keys and values
+    const payload = {
+      $set: {
+        ...data,
+        updatedAt: new Date().toISOString(),
+      },
+    };
+
+    try {
+      await fastify.mongo.collection("entities").updateOne({ id: id }, payload);
+
+      return { message: "updated successfully" };
+    } catch (error: any) {
+      console.error("Failed to update company:", error);
+      throw new Error("Failed to update company: " + error.message);
+    }
+  };
   const createEntity = async (userInfo: decodeType, data: createEntityBody) => {
     const payload = {
-      _id: new ObjectId(),
+      id: v4(),
       companyId: userInfo.companyId,
       name: data.name,
       lat: data.lat,
@@ -49,6 +72,7 @@ export default fp(async (fastify) => {
   fastify.decorate("entityService", {
     getEntities,
     createEntity,
+    updateEntity,
   });
 });
 
@@ -56,6 +80,10 @@ declare module "fastify" {
   interface FastifyInstance {
     entityService: {
       getEntities: (userInfo: decodeType) => Promise<getCompaniesSchema | null>;
+      updateEntity: (
+        id: string,
+        data: updateEntityBody
+      ) => Promise<updateEntityResponse | null>;
       createEntity: (
         userInfo: decodeType,
         data: createEntityBody

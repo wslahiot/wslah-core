@@ -11,7 +11,7 @@ const IParams = Type.Object({
 
 const IResponse = Type.Array(
   Type.Object({
-    _id: Type.String(),
+    id: Type.String(),
     entityId: Type.String(),
     name: Type.String(),
     // unitType: Type.String(),
