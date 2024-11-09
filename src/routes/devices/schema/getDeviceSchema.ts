@@ -38,20 +38,25 @@ export const IBody = Type.Array(
 // batteryLevel?: number
 // status: boolean;
 const IResponse = Type.Array(
-  Type.Object({
-    // companyId: Type.String(),
-    id: Type.String(),
-    unitId: Type.Optional(Type.String()),
-    deviceId: Type.String(),
-    name: Type.String(),
-    deviceType: Type.String(),
-    isSync: Type.Boolean({ default: false }),
-    brand: Type.String(),
-    isConnectedToNetwork: Type.Optional(Type.Boolean()),
-    status: Type.Boolean(),
-    updatedAt: Type.String(),
-    createdAt: Type.String(),
-  })
+  Type.Object(
+    {
+      // companyId: Type.String(),
+      id: Type.String(),
+      unitId: Type.Optional(Type.String()),
+      deviceId: Type.String(),
+      name: Type.String(),
+      deviceType: Type.String(),
+      isSync: Type.Boolean({ default: false }),
+      brand: Type.String(),
+      isConnectedToNetwork: Type.Optional(Type.Boolean()),
+      status: Type.Boolean(),
+      updatedAt: Type.String(),
+      createdAt: Type.String(),
+    },
+    {
+      additionalProperties: true,
+    }
+  )
 );
 
 export type TResponse = Static<typeof IResponse>;

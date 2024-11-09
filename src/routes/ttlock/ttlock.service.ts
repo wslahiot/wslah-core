@@ -5,14 +5,15 @@ import {
   TBody as unlockLockBody,
 } from "./schema/unlockSchema";
 import axios from "axios";
-
 export default fp(async (fastify) => {
-  const lock = async (data: unlockLockBody) => {
+  const lock = async (data: string) => {
     try {
       const { clientId, accessToken, currentDate } =
         await fastify.contentBuilder();
 
-      const content = `${clientId}&${accessToken}&${data.id}&&${currentDate}`;
+      const content =
+        clientId + "&" + accessToken + "&lockId=" + data + "&&" + currentDate;
+
       const response = await axios({
         method: "post",
         url: `https://euapi.ttlock.com/v3/lock/lock`,
@@ -23,7 +24,7 @@ export default fp(async (fastify) => {
       });
 
       if (response.data?.errcode == 0) {
-        return { status: 1, message: response.data.errmsg };
+        return { status: 1, message: "success" };
       } else {
         return { status: 0, message: response.data.errmsg };
       }
@@ -33,12 +34,14 @@ export default fp(async (fastify) => {
     }
   };
 
-  const unlockLock = async (data: unlockLockBody) => {
+  const unlock = async (data: string) => {
     try {
       const { clientId, accessToken, currentDate } =
         await fastify.contentBuilder();
 
-      const content = `${clientId}&${accessToken}&${data.id}&&${currentDate}`;
+      const content =
+        clientId + "&" + accessToken + "&lockId=" + data + "&&" + currentDate;
+
       const response = await axios({
         method: "post",
         url: `https://euapi.ttlock.com/v3/lock/unlock`,
@@ -49,10 +52,68 @@ export default fp(async (fastify) => {
       });
 
       if (response.data?.errcode == 0) {
-        return { status: 1, message: response.data.errmsg };
+        return { status: 1, message: "success" };
       } else {
         return { status: 0, message: response.data.errmsg };
       }
+    } catch (error: any) {
+      console.error("Failed to insert unit:", error);
+      throw new Error("Failed to insert unit: " + error.message);
+    }
+  };
+
+  const sync = async (data: string) => {
+    const device = await fastify.mongo.collection("devices").findOne({
+      deviceId: data,
+    });
+
+    if (!device) {
+      return { status: 0, message: "Device not found" };
+    }
+    const { clientId, accessToken, currentDate } =
+      await fastify.contentBuilder();
+
+    const content =
+      clientId + "&" + accessToken + "&lockId=" + data + "&&" + currentDate;
+
+    try {
+      const [lockInfo, lockOpeningState] = await Promise.all([
+        axios({
+          method: "get",
+          url: `https://euapi.ttlock.com/v3/lock/detail?${content}`,
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }),
+
+        axios({
+          method: "get",
+          url: `https://euapi.ttlock.com/v3/lock/queryOpenState?${content}`,
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }),
+      ]);
+
+      if (lockInfo?.data?.errcode || lockOpeningState?.data?.errcode) {
+        return { status: 0, message: "error" };
+      }
+
+      await fastify.mongo.collection("devices").updateOne(
+        {
+          deviceId: data,
+        },
+        {
+          $set: {
+            extraInfo: lockInfo.data,
+            isSync: true,
+            isConnectedToNetwork: true,
+            status: lockOpeningState.data.lockStatus,
+            updatedAt: new Date().toISOString(),
+          },
+        }
+      );
+      return { status: 1, message: "success" };
     } catch (error: any) {
       console.error("Failed to insert unit:", error);
       throw new Error("Failed to insert unit: " + error.message);
@@ -63,7 +124,8 @@ export default fp(async (fastify) => {
   // @ts-ignore
   fastify.decorate("ttlockService", {
     lock,
-    unlockLock,
+    unlock,
+    sync,
   });
 });
 
@@ -71,9 +133,8 @@ declare module "fastify" {
   interface FastifyInstance {
     ttlockService: {
       lock: (data: unlockLockBody) => Promise<ttlockLockUnlockBody | null>;
-      unlockLock: (
-        data: unlockLockBody
-      ) => Promise<ttlockLockUnlockBody | null>;
+      sync: (data: string) => Promise<any | null>;
+      unlock: (data: unlockLockBody) => Promise<ttlockLockUnlockBody | null>;
     };
   }
 }

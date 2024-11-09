@@ -24,7 +24,13 @@ export default fp(async (fastify) => {
       throw new Error("No data provided");
     }
 
-    const payload = data.map((item) => {
+    const isFound = await fastify.mongo.collection("devices").findOne({
+      deviceId: data[0].deviceId,
+    });
+    if (isFound) {
+      throw new Error("Device already exists");
+    }
+    const payload = data.map((item: any) => {
       const id = v4();
       return {
         ...item,
@@ -37,6 +43,7 @@ export default fp(async (fastify) => {
 
     try {
       await fastify.mongo.collection("devices").insertMany(payload);
+      await fastify.ttlockService.sync(item.deviceId);
       return { message: "Inserted successfully" };
     } catch (error: any) {
       console.error("Failed to insert device:", error);

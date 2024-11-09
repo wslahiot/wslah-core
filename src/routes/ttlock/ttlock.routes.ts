@@ -16,8 +16,20 @@ const Ttlock: FastifyPluginAsyncTypebox = async (
     url: "/unlock",
     schema: getDeviceSchema,
     preHandler: [fastify.authenticate],
-    handler: async () => {
-      return await fastify.ttlockService.unlcok;
+    handler: async (request: FastifyRequest) => {
+      const { id } = request.body as lockBody;
+      return await fastify.ttlockService.unlock(id);
+    },
+  });
+
+  fastify.route({
+    method: "POST",
+    url: "/sync",
+    schema: lockTtlockSchema,
+    preHandler: [fastify.authenticate],
+    handler: async (request: FastifyRequest) => {
+      const { id } = request.body as lockBody;
+      return await fastify.ttlockService.sync(id);
     },
   });
 
@@ -29,7 +41,7 @@ const Ttlock: FastifyPluginAsyncTypebox = async (
     handler: async (request: FastifyRequest) => {
       const { id } = request.body as lockBody;
 
-      return await fastify.ttlockService.unlockLock(id);
+      return await fastify.ttlockService.lock(id);
     },
   });
 };

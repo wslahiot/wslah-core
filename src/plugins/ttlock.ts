@@ -18,6 +18,7 @@ interface ContentBuilderSchema {
   clientId: string;
   accessToken: string;
   currentDate: string;
+  // lockId: string;
 }
 
 export default fp<TtlockTokenPluginOptions>(
@@ -100,9 +101,10 @@ export default fp<TtlockTokenPluginOptions>(
       async (): Promise<ContentBuilderSchema> => {
         const token = await fastify.getToken();
         return {
-          clientId: `clientId=${process.env.clientId}`,
-          accessToken: `accessToken=${token.access_token}`,
+          clientId: `clientId=${process.env.clientId}&clientSecret=${process.env.clientSecret}&`,
+          accessToken: `accessToken=${token.access_token}&`,
           currentDate: `date=${new Date().getTime()}`,
+          // lockId: `lockId=${process.env.lockId}`,
         };
       }
     );
