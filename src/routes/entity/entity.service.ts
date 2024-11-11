@@ -15,6 +15,7 @@ import { v4 } from "uuid";
 
 export default fp(async (fastify) => {
   const getEntities = async (userInfo: decodeType) => {
+    console.log(userInfo);
     const result = await fastify.mongo
       .collection("entities")
       .find({
@@ -37,10 +38,10 @@ export default fp(async (fastify) => {
     try {
       await fastify.mongo.collection("entities").updateOne({ id: id }, payload);
 
-      return { message: "updated successfully" };
+      return { status: "success", message: "inserted successfully" };
     } catch (error: any) {
       console.error("Failed to update company:", error);
-      throw new Error("Failed to update company: " + error.message);
+      return { message: "Failed to update company: " + error.message };
     }
   };
   const createEntity = async (userInfo: decodeType, data: createEntityBody) => {
@@ -63,7 +64,7 @@ export default fp(async (fastify) => {
       return { id: result.insertedId };
     } catch (error: any) {
       console.error("Failed to insert company:", error);
-      throw new Error("Failed to insert company: " + error.message);
+      return { message: "Failed to insert company: " + error.message };
     }
   };
 

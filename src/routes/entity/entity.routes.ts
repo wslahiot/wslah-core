@@ -13,8 +13,9 @@ const entity: FastifyPluginAsyncTypebox = async (
     url: "/",
     schema: getEntitySchema,
     preHandler: [fastify.authenticate],
-    handler: async () => {
-      return await fastify.entityService.getEntities();
+    handler: async (request: FastifyRequest) => {
+      const decoded = fastify.decode(request.headers.authorization);
+      return await fastify.entityService.getEntities(decoded);
     },
   });
 

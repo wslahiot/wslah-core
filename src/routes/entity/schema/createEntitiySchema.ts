@@ -10,10 +10,12 @@ type TParams = Static<typeof IParams>;
 
 const IResponse = Type.Object({
   id: Type.String(),
+  status: Type.String(),
 });
 
 export const IBody = Type.Object({
   name: Type.String(),
+  // imgSource: Type.Optional(Type.String()),
   lat: Type.Number(),
   lng: Type.Number(),
   description: Type.String(),

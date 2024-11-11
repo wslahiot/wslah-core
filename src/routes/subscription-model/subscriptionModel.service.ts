@@ -33,12 +33,19 @@ export default fp(async (fastify) => {
       return "No subscription model found";
     }
 
-    const result = fastify.mongo.collection("subscriptionModel").insertOne({
-      ...body,
-      id: v4(),
-    });
+    try {
+      fastify.mongo.collection("subscriptionModel").insertOne({
+        ...body,
+        id: v4(),
+      });
 
-    return result;
+      return { status: "success", message: "inserted successfully" };
+    } catch (error: any) {
+      console.error("Failed to insert subscription model:", error);
+      return {
+        message: "Failed to insert subscription model: " + error.message,
+      };
+    }
   };
 
   // Decorate the fastify instance with the departmentService

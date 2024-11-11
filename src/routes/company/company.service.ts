@@ -35,10 +35,10 @@ export default fp(async (fastify) => {
 
     try {
       await fastify.mongo.collection("companies").insertOne(payload);
-      return { message: "inserted successfully" };
+      return { status: "success", message: "inserted successfully" };
     } catch (error: any) {
       console.error("Failed to insert company:", error);
-      throw new Error("Failed to insert company: " + error.message);
+      return { message: "Failed to insert company: " + error.message };
     }
   };
 
@@ -57,7 +57,7 @@ export default fp(async (fastify) => {
       return { message: "updated successfully" };
     } catch (error: any) {
       console.error("Failed to update company:", error);
-      throw new Error("Failed to update company: " + error.message);
+      return { message: "Failed to update company: " + error.message };
     }
   };
 

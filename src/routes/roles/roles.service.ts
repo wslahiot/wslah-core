@@ -40,7 +40,7 @@ export default fp(async (fastify) => {
       idNumber: customer.idNumber,
     });
     if (existingUser) {
-      throw new Error("User already exists");
+      return { message: "Customer already exists" };
     }
 
     const result = await fastify.mongo.collection("customers").insertOne({

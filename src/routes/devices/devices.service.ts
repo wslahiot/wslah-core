@@ -21,14 +21,14 @@ export default fp(async (fastify) => {
 
   const createDevice = async (userInfo: decodeType, data: createDeviceBody) => {
     if (data.length === 0) {
-      throw new Error("No data provided");
+      return { message: "No data" };
     }
 
     const isFound = await fastify.mongo.collection("devices").findOne({
       deviceId: data[0].deviceId,
     });
     if (isFound) {
-      throw new Error("Device already exists");
+      return { message: "Device already exists" };
     }
     const payload = data.map((item: any) => {
       const id = v4();
@@ -43,11 +43,14 @@ export default fp(async (fastify) => {
 
     try {
       await fastify.mongo.collection("devices").insertMany(payload);
-      await fastify.ttlockService.sync(item.deviceId);
-      return { message: "Inserted successfully" };
+      for (const item of payload) {
+        await fastify.ttlockService.sync(item.deviceId);
+      }
+
+      return { status: "success", message: "inserted successfully" };
     } catch (error: any) {
       console.error("Failed to insert device:", error);
-      throw new Error("Failed to insert device: " + error.message);
+      return { message: "Failed to insert device: " + error.message };
     }
   };
   // Decorate the fastify instance with the departmentService

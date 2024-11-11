@@ -30,7 +30,7 @@ export default fp(async (fastify) => {
       }
     } catch (error: any) {
       console.error("Failed to insert unit:", error);
-      throw new Error("Failed to insert unit: " + error.message);
+      return { status: 0, message: "Failed to insert unit: " + error.message };
     }
   };
 
@@ -58,7 +58,7 @@ export default fp(async (fastify) => {
       }
     } catch (error: any) {
       console.error("Failed to insert unit:", error);
-      throw new Error("Failed to insert unit: " + error.message);
+      return { status: 0, message: "Failed to insert unit: " + error.message };
     }
   };
 
@@ -116,7 +116,7 @@ export default fp(async (fastify) => {
       return { status: 1, message: "success" };
     } catch (error: any) {
       console.error("Failed to insert unit:", error);
-      throw new Error("Failed to insert unit: " + error.message);
+      return { status: 0, message: "Failed to insert unit: " + error.message };
     }
   };
 

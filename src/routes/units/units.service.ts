@@ -12,7 +12,7 @@ import { v4 } from "uuid";
 export default fp(async (fastify) => {
   const getUnits = async () => {
     const result = await fastify.mongo.collection("units").find({}).toArray();
-
+    console.log(result);
     return result;
   };
 
@@ -46,13 +46,13 @@ export default fp(async (fastify) => {
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
     };
-
+    console.log(payload);
     try {
       await fastify.mongo.collection("units").insertOne(payload);
-      return { message: "success" };
+      return { status: "success", message: "inserted successfully" };
     } catch (error: any) {
       console.error("Failed to insert unit:", error);
-      throw new Error("Failed to insert unit: " + error.message);
+      return { message: "Failed to insert unit: " + error.message };
     }
   };
 

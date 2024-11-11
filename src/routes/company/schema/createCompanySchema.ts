@@ -8,7 +8,10 @@ type THeader = Static<typeof IHeader>;
 const IParams = Type.Object({});
 type TParams = Static<typeof IParams>;
 
-const IResponse = Type.Object({ message: Type.String() });
+const IResponse = Type.Object({
+  message: Type.String(),
+  status: Type.String(),
+});
 
 export const IBody = Type.Object({
   name: Type.String(),

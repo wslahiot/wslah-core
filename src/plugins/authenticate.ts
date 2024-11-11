@@ -27,8 +27,9 @@ export default fp<FastifyJWTOptions>(async (fastify) => {
           },
         })
         .catch((err) => {
-          console.log(err);
-          throw new Error("Authentication failed");
+          reply
+            .code(401)
+            .send({ message: "Authentication failed", error: err.message });
         });
     } catch (err: any) {
       reply
@@ -46,7 +47,7 @@ export default fp<FastifyJWTOptions>(async (fastify) => {
       const res = fastify.jwt.decode(token);
 
       if (!res) {
-        throw new Error("Invalid token");
+        return { error: "Invalid token" };
       }
 
       return res;

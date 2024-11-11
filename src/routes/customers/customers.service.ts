@@ -40,16 +40,21 @@ export default fp(async (fastify) => {
       idNumber: customer.idNumber,
     });
     if (existingUser) {
-      throw new Error("User already exists");
+      return { message: "Customer already exists" };
     }
 
-    const result = await fastify.mongo.collection("customers").insertOne({
-      ...customer,
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-    });
+    try {
+      await fastify.mongo.collection("customers").insertOne({
+        ...customer,
+        updatedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+      });
 
-    return result;
+      return { status: "success", message: "inserted successfully" };
+    } catch (error: any) {
+      console.error("Failed to insert customer:", error);
+      return { message: "Failed to insert customer: " + error.message };
+    }
   };
 
   // Decorate the fastify instance with the departmentService

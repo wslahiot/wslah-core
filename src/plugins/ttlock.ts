@@ -30,9 +30,7 @@ export default fp<TtlockTokenPluginOptions>(
       const ttlockPassword = process.env.ttlockPassword;
 
       if (!ttlockPassword) {
-        throw new Error(
-          "The ttlockPassword environment variable is not defined."
-        );
+        return Promise.reject(new Error("No TTLock password provided."));
       }
 
       const hash = md5.create();
@@ -55,13 +53,12 @@ export default fp<TtlockTokenPluginOptions>(
         return token;
       } catch (error) {
         fastify.log.error(error);
-        throw error;
       }
     });
 
     fastify.decorate("refreshToken", async (): Promise<Token> => {
       if (!token || !token.refresh_token) {
-        throw new Error("No refresh token available.");
+        return Promise.reject(new Error("No refresh token available."));
       }
 
       const content = `clientId=${process.env.clientId}&clientSecret=${process.env.clientSecret}&refreshToken=${token.refresh_token}&grantType=refresh_token`;
@@ -80,7 +77,6 @@ export default fp<TtlockTokenPluginOptions>(
         return token;
       } catch (error) {
         fastify.log.error(error);
-        throw error;
       }
     });
 

@@ -68,13 +68,11 @@ export default fp(async (fastify) => {
     };
 
     try {
-      const result = await fastify.mongo
-        .collection("subscriptions")
-        .insertOne(payload);
-      return result;
-    } catch (error) {
+      await fastify.mongo.collection("subscriptions").insertOne(payload);
+      return { status: "success", message: "inserted successfully" };
+    } catch (error: any) {
       console.error("Error creating subscription:", error);
-      throw new Error("Failed to create subscription");
+      return { message: "Failed to create subscription: " + error.message };
     }
   };
 
