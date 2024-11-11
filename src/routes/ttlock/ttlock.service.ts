@@ -102,7 +102,7 @@ export default fp(async (fastify) => {
       });
 
       if (lockInfo?.data?.errcode || lockOpeningState?.data?.errcode) {
-        return { status: "failed", message: "error" };
+        return { status: "failed", message: "lock details or openState" };
       }
 
       await fastify.mongo.collection("devices").updateOne(
