@@ -44,7 +44,8 @@ export default fp(async (fastify) => {
     try {
       await fastify.mongo.collection("devices").insertMany(payload);
       for (const item of payload) {
-        await fastify.ttlockService.sync(item.deviceId);
+        const result = await fastify.ttlockService.sync(item.deviceId);
+        console.log({ result });
       }
 
       return { status: "success", message: "inserted successfully" };

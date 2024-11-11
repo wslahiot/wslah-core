@@ -67,8 +67,9 @@ export default fp(async (fastify) => {
       deviceId: data,
     });
 
+    console.log({ device });
     if (!device) {
-      return { status: 0, message: "Device not found" };
+      return { status: "failed", message: "Device not found" };
     }
     const { clientId, accessToken, currentDate } =
       await fastify.contentBuilder();
@@ -95,8 +96,13 @@ export default fp(async (fastify) => {
         }),
       ]);
 
+      console.log({
+        lockInfo: lockInfo.data,
+        lockOpeningState: lockOpeningState.data,
+      });
+
       if (lockInfo?.data?.errcode || lockOpeningState?.data?.errcode) {
-        return { status: 0, message: "error" };
+        return { status: "failed", message: "error" };
       }
 
       await fastify.mongo.collection("devices").updateOne(
@@ -113,10 +119,13 @@ export default fp(async (fastify) => {
           },
         }
       );
-      return { status: 1, message: "success" };
+      return { status: "success", message: "Synced" };
     } catch (error: any) {
       console.error("Failed to insert unit:", error);
-      return { status: 0, message: "Failed to insert unit: " + error.message };
+      return {
+        status: "failed",
+        message: "Failed to insert unit: " + error.message,
+      };
     }
   };
 
