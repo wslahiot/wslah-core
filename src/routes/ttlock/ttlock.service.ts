@@ -24,13 +24,16 @@ export default fp(async (fastify) => {
       });
 
       if (response.data?.errcode == 0) {
-        return { status: 1, message: "success" };
+        return { status: "success", message: "success" };
       } else {
-        return { status: 0, message: response.data.errmsg };
+        return { status: "success", message: response.data.errmsg };
       }
     } catch (error: any) {
       console.error("Failed to insert unit:", error);
-      return { status: 0, message: "Failed to insert unit: " + error.message };
+      return {
+        status: "failed",
+        message: "Failed to insert unit: " + error.message,
+      };
     }
   };
 
@@ -52,13 +55,16 @@ export default fp(async (fastify) => {
       });
 
       if (response.data?.errcode == 0) {
-        return { status: 1, message: "success" };
+        return { status: "success", message: "success" };
       } else {
-        return { status: 0, message: response.data.errmsg };
+        return { status: "failed", message: response.data.errmsg };
       }
     } catch (error: any) {
       console.error("Failed to insert unit:", error);
-      return { status: 0, message: "Failed to insert unit: " + error.message };
+      return {
+        status: "failed",
+        message: "Failed to insert unit: " + error.message,
+      };
     }
   };
 
