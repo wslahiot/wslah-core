@@ -61,7 +61,7 @@ export default fp(async (fastify) => {
         .collection("entities")
         .insertOne(payload);
 
-      return { id: result.insertedId };
+      return { status: "success", id: result.insertedId };
     } catch (error: any) {
       console.error("Failed to insert company:", error);
       return { message: "Failed to insert company: " + error.message };
