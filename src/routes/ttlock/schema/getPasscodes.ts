@@ -1,4 +1,5 @@
 import { Static, Type } from "@sinclair/typebox";
+
 // const IHeader = Type.Object({
 //   "x-custom-key": Type.Optional(Type.String()),
 // });
@@ -10,21 +11,12 @@ const IParams = Type.Object({
 // type TParams = Static<typeof IParams>;
 
 const IResponse = Type.Array(
-  Type.Object(
-    {
-      id: Type.String(),
-      entityId: Type.String(),
-      name: Type.String(),
-      // unitType: Type.String(),
-      isPublic: Type.Boolean({ default: false }),
-      lastMaintenanceDate: Type.Optional(Type.String()),
-      updatedAt: Type.String(),
-      createdAt: Type.String(),
-    },
-    {
-      additionalProperties: true,
-    }
-  )
+  Type.Object({
+    passcode: Type.String(),
+    passcodeName: Type.String(),
+    startDate: Type.String(),
+    endDate: Type.String(),
+  })
 );
 
 export type TResponse = Static<typeof IResponse>;
@@ -35,22 +27,18 @@ const IError = Type.Object({
   message: Type.String(),
 });
 
-export const getUnitsSchema = {
-  tags: ["Units"],
+export const getDeviceSchema = {
+  tags: ["TTLock"],
   deprecated: false,
-  summary: "Get units info",
-  description: "Get units info",
+  summary: "Get devices info",
+  description: "Get devices info",
+  IParams,
   response: {
     200: IResponse,
     400: IError,
     404: IError,
     500: IError,
   },
-};
-
-export const getUnitsByEntityIdSchema = {
-  ...getUnitsSchema,
-  params: IParams,
 };
 
 import fp from "fastify-plugin";

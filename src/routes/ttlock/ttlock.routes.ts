@@ -1,7 +1,8 @@
 import { FastifyRequest } from "fastify";
 import { lockTtlockSchema } from "./schema/lockSchema";
-import { getDeviceSchema } from "./schema/getDeviceSchema";
 import { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
+import createPasscode, { createPasscodeSchema } from "./schema/createPasscode";
+// import { createPasscodeSchema } from "./schema/createPasscode";
 
 type lockBody = {
   id: string;
@@ -14,7 +15,7 @@ const Ttlock: FastifyPluginAsyncTypebox = async (
   fastify.route({
     method: "POST",
     url: "/unlock",
-    schema: getDeviceSchema,
+    schema: lockTtlockSchema,
     preHandler: [fastify.authenticate],
     handler: async (request: FastifyRequest) => {
       const { id } = request.body as lockBody;
@@ -30,6 +31,39 @@ const Ttlock: FastifyPluginAsyncTypebox = async (
     handler: async (request: FastifyRequest) => {
       const { id } = request.body as lockBody;
       return await fastify.ttlockService.sync(id);
+    },
+  });
+  fastify.route({
+    method: "GET",
+    url: "/getOpenState/:lockId",
+
+    preHandler: [fastify.authenticate],
+    handler: async (request: FastifyRequest) => {
+      const { lockId } = request.params as { lockId: string };
+
+      return await fastify.ttlockService.getOpenState(lockId);
+    },
+  });
+  fastify.route({
+    method: "GET",
+    url: "/getPasscodes/:lockId",
+
+    preHandler: [fastify.authenticate],
+    handler: async (request: FastifyRequest) => {
+      const { lockId } = request.params as { lockId: string };
+      console.log({ lockId });
+      return await fastify.ttlockService.getPasscodes(lockId);
+    },
+  });
+
+  fastify.route({
+    method: "POST",
+    url: "/generatePasscode",
+    schema: createPasscodeSchema,
+    preHandler: [fastify.authenticate],
+    handler: async (request: FastifyRequest) => {
+      const { body } = request;
+      return await fastify.ttlockService.generatePasscode(body);
     },
   });
 

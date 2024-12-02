@@ -16,6 +16,16 @@ export default fp(async (fastify) => {
       })
       .toArray();
 
+    for (const item of result) {
+      if (item.deviceType === "lock" && item.brand === "ttlock") {
+        try {
+          await fastify.ttlockService.sync(item.deviceId);
+        } catch (error) {
+          console.error("Failed to sync device:", error);
+        }
+      }
+    }
+
     return result;
   };
 
@@ -44,7 +54,7 @@ export default fp(async (fastify) => {
     try {
       await fastify.mongo.collection("devices").insertMany(payload);
       for (const item of payload) {
-        const result = await fastify.ttlockService.sync(item.deviceId);
+        const result = await fastify.ttlockService.sync(item.deviceId, true);
         console.log({ result });
       }
 

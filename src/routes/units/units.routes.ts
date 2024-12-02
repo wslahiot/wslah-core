@@ -6,6 +6,7 @@ import {
 } from "./schema/getUnitsSchema";
 import { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 import { getUnitsByIdSchema } from "./schema/getUnitByIdSchema";
+import updateUnitSchema from "./schema/updateUnitSchema";
 
 const entity: FastifyPluginAsyncTypebox = async (
   fastify: any
@@ -44,6 +45,17 @@ const entity: FastifyPluginAsyncTypebox = async (
     },
   });
 
+  fastify.route({
+    method: "PUT",
+    url: "/:id",
+    schema: updateUnitSchema,
+    preHandler: [fastify.authenticate],
+    handler: async (request: any) => {
+      const { id } = request.params;
+      const { body } = request;
+      return await fastify.unitsService.updateUnit(id, body);
+    },
+  });
   fastify.route({
     method: "POST",
     url: "/",

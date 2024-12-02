@@ -45,8 +45,9 @@ export default fp(async (fastify) => {
     }
   };
   const createEntity = async (userInfo: decodeType, data: createEntityBody) => {
+    const id = v4();
     const payload = {
-      id: v4(),
+      id,
       companyId: userInfo.companyId,
       name: data.name,
       lat: data.lat,
@@ -57,11 +58,9 @@ export default fp(async (fastify) => {
     };
 
     try {
-      const result = await fastify.mongo
-        .collection("entities")
-        .insertOne(payload);
+      await fastify.mongo.collection("entities").insertOne(payload);
 
-      return { status: "success", id: result.insertedId };
+      return { status: "success", id };
     } catch (error: any) {
       console.error("Failed to insert company:", error);
       return { message: "Failed to insert company: " + error.message };

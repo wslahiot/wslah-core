@@ -9,23 +9,10 @@ const IParams = Type.Object({
 });
 // type TParams = Static<typeof IParams>;
 
-const IResponse = Type.Array(
-  Type.Object(
-    {
-      id: Type.String(),
-      entityId: Type.String(),
-      name: Type.String(),
-      // unitType: Type.String(),
-      isPublic: Type.Boolean({ default: false }),
-      lastMaintenanceDate: Type.Optional(Type.String()),
-      updatedAt: Type.String(),
-      createdAt: Type.String(),
-    },
-    {
-      additionalProperties: true,
-    }
-  )
-);
+const IResponse = Type.Object({
+  status: Type.String(),
+  message: Type.String(),
+});
 
 export type TResponse = Static<typeof IResponse>;
 
@@ -35,22 +22,18 @@ const IError = Type.Object({
   message: Type.String(),
 });
 
-export const getUnitsSchema = {
+export const updateUnitSchema = {
   tags: ["Units"],
   deprecated: false,
   summary: "Get units info",
   description: "Get units info",
+  params: IParams,
   response: {
     200: IResponse,
     400: IError,
     404: IError,
     500: IError,
   },
-};
-
-export const getUnitsByEntityIdSchema = {
-  ...getUnitsSchema,
-  params: IParams,
 };
 
 import fp from "fastify-plugin";
