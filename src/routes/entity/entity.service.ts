@@ -67,12 +67,52 @@ export default fp(async (fastify) => {
     }
   };
 
+  const getEntityById = async (userInfo: decodeType, id: string) => {
+    try {
+      const entity = await fastify.mongo.collection("entities").findOne({
+        id,
+        companyId: userInfo.companyId,
+      });
+
+      if (!entity) {
+        throw new Error("Entity not found");
+      }
+
+      return entity;
+    } catch (error: any) {
+      console.error("Failed to get entity:", error);
+      throw new Error(`Failed to get entity: ${error.message}`);
+    }
+  };
+
+  const deleteEntity = async (userInfo: decodeType, id: string) => {
+    try {
+      const result = await fastify.mongo
+        .collection("entities")
+        .updateOne(
+          { id, companyId: userInfo.companyId },
+          { $set: { isActive: false, updatedAt: new Date().toISOString() } }
+        );
+
+      if (result.matchedCount === 0) {
+        throw new Error("Entity not found");
+      }
+
+      return { status: "success", message: "Entity deleted successfully" };
+    } catch (error: any) {
+      console.error("Failed to delete entity:", error);
+      throw new Error(`Failed to delete entity: ${error.message}`);
+    }
+  };
+
   // Decorate the fastify instance with the departmentService
   // @ts-ignore
   fastify.decorate("entityService", {
     getEntities,
+    getEntityById,
     createEntity,
     updateEntity,
+    deleteEntity,
   });
 });
 
@@ -88,6 +128,8 @@ declare module "fastify" {
         userInfo: decodeType,
         data: createEntityBody
       ) => Promise<createCompanyResponse | null>;
+      getEntityById: (userInfo: decodeType, id: string) => Promise<any | null>;
+      deleteEntity: (userInfo: decodeType, id: string) => Promise<any | null>;
     };
   }
 }

@@ -57,12 +57,57 @@ export default fp(async (fastify) => {
     }
   };
 
+  const updateCustomer = async (id: string, data: Partial<BodySchema>) => {
+    try {
+      const result = await fastify.mongo.collection("customers").updateOne(
+        { idNumber: id },
+        {
+          $set: {
+            ...data,
+            updatedAt: new Date().toISOString(),
+          },
+        }
+      );
+
+      if (result.matchedCount === 0) {
+        throw new Error("Customer not found");
+      }
+
+      return { status: "success", message: "Customer updated successfully" };
+    } catch (error: any) {
+      console.error("Failed to update customer:", error);
+      throw new Error(`Failed to update customer: ${error.message}`);
+    }
+  };
+
+  const deleteCustomer = async (id: string) => {
+    try {
+      const result = await fastify.mongo
+        .collection("customers")
+        .updateOne(
+          { idNumber: id },
+          { $set: { isActive: false, updatedAt: new Date().toISOString() } }
+        );
+
+      if (result.matchedCount === 0) {
+        throw new Error("Customer not found");
+      }
+
+      return { status: "success", message: "Customer deleted successfully" };
+    } catch (error: any) {
+      console.error("Failed to delete customer:", error);
+      throw new Error(`Failed to delete customer: ${error.message}`);
+    }
+  };
+
   // Decorate the fastify instance with the departmentService
   // @ts-ignore
   fastify.decorate("customersService", {
     getCustomers,
     getCustomersById,
     createCustomer,
+    updateCustomer,
+    deleteCustomer,
   });
 });
 
@@ -74,6 +119,13 @@ declare module "fastify" {
         id: GetCustomerByIdSchema
       ) => Promise<GetCustomerSchema | null>;
       createCustomer: (user: BodySchema) => Promise<createCustomerType | null>;
+      updateCustomer: (
+        id: string,
+        data: Partial<BodySchema>
+      ) => Promise<{ status: string; message: string }>;
+      deleteCustomer: (
+        id: string
+      ) => Promise<{ status: string; message: string }>;
     };
   }
 }

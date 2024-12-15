@@ -13,7 +13,7 @@ export const IBody = Type.Object({
   endDate: Type.Optional(Type.String()),
 });
 
-// type TParams = Static<typeof IParams>;
+// export type TParams = Static<typeof IParams>;
 
 const IResponse = Type.Object({
   message: Type.String(),

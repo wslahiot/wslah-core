@@ -43,6 +43,28 @@ const entity: FastifyPluginAsyncTypebox = async (
       return await fastify.entityService.updateEntity(id, body);
     },
   });
+
+  fastify.route({
+    method: "DELETE",
+    url: "/:id",
+    preHandler: [fastify.authenticate],
+    handler: async (request: FastifyRequest) => {
+      const { id } = request.params as { id: string };
+      const decoded = fastify.decode(request.headers.authorization);
+      return await fastify.entityService.deleteEntity(decoded, id);
+    },
+  });
+
+  fastify.route({
+    method: "GET",
+    url: "/:id",
+    preHandler: [fastify.authenticate],
+    handler: async (request: FastifyRequest) => {
+      const { id } = request.params as { id: string };
+      const decoded = fastify.decode(request.headers.authorization);
+      return await fastify.entityService.getEntityById(decoded, id);
+    },
+  });
 };
 
 export default entity;

@@ -6,7 +6,7 @@ import { Static, Type } from "@sinclair/typebox";
 // type THeader = Static<typeof IHeader>;
 
 // const IParams = Type.Object({});
-// type TParams = Static<typeof IParams>;
+// export type TParams = Static<typeof IParams>;
 
 export const IBody = Type.Array(
   Type.Object({

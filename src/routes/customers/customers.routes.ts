@@ -37,6 +37,27 @@ const users = async (fastify: any): Promise<void> => {
       return await fastify.customersService.getCustomersById(id);
     },
   });
+
+  fastify.route({
+    method: "PUT",
+    url: "/:id",
+    preHandler: [fastify.authenticate],
+    handler: async (request: any) => {
+      const { id } = request.params as { id: string };
+      const { body } = request;
+      return await fastify.customersService.updateCustomer(id, body);
+    },
+  });
+
+  fastify.route({
+    method: "DELETE",
+    url: "/:id",
+    preHandler: [fastify.authenticate],
+    handler: async (request: any) => {
+      const { id } = request.params as { id: string };
+      return await fastify.customersService.deleteCustomer(id);
+    },
+  });
 };
 
 export default users;

@@ -1,6 +1,5 @@
 import fp from "fastify-plugin";
 import fastifyJwt, { FastifyJWTOptions } from "@fastify/jwt";
-import axios from "axios";
 
 export type decodeType = {
   id: string;
@@ -17,20 +16,8 @@ export default fp<FastifyJWTOptions>(async (fastify) => {
   });
 
   fastify.decorate("authenticate", async function (request, reply) {
-    //? User wslah-auth to verify token
-    const url = "https://wslah-auth.fly.dev/auth/verify"; //https://wslah-auth.fly.dev/auth/verify || "http://localhost:4000/auth/verify"  //? For local testing;
     try {
-      await axios
-        .get(url, {
-          headers: {
-            Authorization: request.headers.authorization,
-          },
-        })
-        .catch((err) => {
-          reply
-            .code(401)
-            .send({ message: "Authentication failed", error: err.message });
-        });
+      await request.jwtVerify();
     } catch (err: any) {
       reply
         .code(401)

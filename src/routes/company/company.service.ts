@@ -12,6 +12,8 @@ import {
 } from "./schema/updateCompanySchema";
 
 import { v4 } from "uuid";
+import { TResponse as GetCompanyByIdResponse } from "./schema/getCompanyByIdSchema";
+import { TResponse as DeleteCompanyResponse } from "./schema/deleteCompanySchema";
 
 export default fp(async (fastify) => {
   const getCompanies = async () => {
@@ -61,12 +63,51 @@ export default fp(async (fastify) => {
     }
   };
 
+  const getCompanyById = async (id: string) => {
+    try {
+      const result = await fastify.mongo
+        .collection("companies")
+        .findOne({ id });
+
+      if (!result) {
+        throw new Error("Company not found");
+      }
+
+      return result;
+    } catch (error: any) {
+      console.error("Failed to get company:", error);
+      throw new Error(`Failed to get company: ${error.message}`);
+    }
+  };
+
+  const deleteCompany = async (id: string) => {
+    try {
+      const result = await fastify.mongo
+        .collection("companies")
+        .updateOne(
+          { id },
+          { $set: { isActive: false, updatedAt: new Date().toISOString() } }
+        );
+
+      if (result.matchedCount === 0) {
+        throw new Error("Company not found");
+      }
+
+      return { status: "success", message: "Company deleted successfully" };
+    } catch (error: any) {
+      console.error("Failed to delete company:", error);
+      throw new Error(`Failed to delete company: ${error.message}`);
+    }
+  };
+
   // Decorate the fastify instance with the departmentService
   // @ts-ignore
   fastify.decorate("companyService", {
     getCompanies,
+    getCompanyById,
     createCompany,
     updateCompany,
+    deleteCompany,
   });
 });
 
@@ -81,6 +122,8 @@ declare module "fastify" {
       createCompany: (
         data: createCompanyBody
       ) => Promise<createCompanyResponse | null>;
+      getCompanyById: (id: string) => Promise<GetCompanyByIdResponse | null>;
+      deleteCompany: (id: string) => Promise<DeleteCompanyResponse | null>;
     };
   }
 }

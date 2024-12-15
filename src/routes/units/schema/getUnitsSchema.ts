@@ -7,7 +7,7 @@ import { Static, Type } from "@sinclair/typebox";
 const IParams = Type.Object({
   id: Type.String(),
 });
-// type TParams = Static<typeof IParams>;
+// export type TParams = Static<typeof IParams>;
 
 const IResponse = Type.Array(
   Type.Object(

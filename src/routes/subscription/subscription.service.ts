@@ -8,6 +8,8 @@ import {
 
 import { decodeType } from "../../plugins/authenticate";
 import { v4 } from "uuid";
+// import { TResponse as GetSubscriptionSchema } from "./schema/getSubscriptionSchema";
+// import { TBody as UpdateSubscriptionBody } from "./schema/updateSubscriptionSchema";
 
 export default fp(async (fastify) => {
   const getSubscriptions = async (userInfo: decodeType) => {

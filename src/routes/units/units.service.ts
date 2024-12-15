@@ -10,97 +10,48 @@ import { decodeType } from "../../plugins/authenticate";
 import { v4 } from "uuid";
 
 export default fp(async (fastify) => {
-  const getUnits = async () => {
-    const result = await fastify.mongo
-      .collection("units")
-      .aggregate([
-        {
-          $lookup: {
-            from: "entities", // The collection to join with
-            localField: "entityId", // The field in "units" to match
-            foreignField: "id", // The field in "entities" to match
-            as: "entityDetails", // The name of the joined field in the result
-          },
-        },
-        {
-          $unwind: {
-            path: "$entityDetails", // Unwind the joined results to get a flat structure
-            preserveNullAndEmptyArrays: true, // Keep units without matching entities
-          },
-        },
-        {
-          $project: {
-            _id: 0, // Exclude the MongoDB `_id` field if not needed
-            id: 1,
-            name: 1,
-            entityId: 1,
-            isPublic: 1,
-            lastMaintenanceDate: 1,
-            updatedAt: 1,
-            createdAt: 1,
-            "entityDetails.name": 1, // Include specific fields from `entityDetails`
-            "entityDetails.description": 1,
-            "entityDetails.lat": 1,
-            "entityDetails.lng": 1,
-          },
-        },
-      ])
-      .toArray();
-
-    console.log(result);
-    return result;
-  };
-  const getUnitsByEntityId = async (entityId: string) => {
-    const result = await fastify.mongo
-      .collection("units")
-      .find({
-        entityId: entityId,
-      })
-      .toArray();
-
-    return result;
-  };
-
-  const updateUnit = async (id: string, data: createUnitBody) => {
-    // update company with given keys and values
-    const payload = {
-      $set: {
-        ...data,
-        updatedAt: new Date().toISOString(),
-      },
-    };
-
+  const getUnits = async (userInfo: decodeType) => {
     try {
-      await fastify.mongo.collection("units").updateOne({ id: id }, payload);
-
-      return { status: "success", message: "updated successfully" };
+      const result = await fastify.mongo
+        .collection("units")
+        .find({ companyId: userInfo.companyId })
+        .toArray();
+      return result;
     } catch (error: any) {
-      console.error("Failed to update company:", error);
-      return { message: "Failed to update company: " + error.message };
+      console.error("Failed to get units:", error);
+      throw new Error(`Failed to get units: ${error.message}`);
     }
   };
 
-  const getUnitById = async (id: string) => {
-    const result = await fastify.mongo.collection("units").findOne({
-      id,
-    });
+  const getUnitById = async (userInfo: decodeType, id: string) => {
+    try {
+      const unit = await fastify.mongo
+        .collection("units")
+        .findOne({ id, companyId: userInfo.companyId });
 
-    return result;
+      if (!unit) {
+        throw new Error("Unit not found");
+      }
+      return unit;
+    } catch (error: any) {
+      console.error("Failed to get unit:", error);
+      throw new Error(`Failed to get unit: ${error.message}`);
+    }
   };
 
   const createUnit = async (userInfo: decodeType, data: createUnitBody) => {
-    const payload = {
-      id: v4(),
-      companyId: userInfo?.companyId,
-      entityId: data?.entityId,
-      name: data.name,
-      isPublic: data.isPublic,
-      lastMaintenanceDate: data.lastMaintenanceDate,
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-    };
-    console.log(payload);
     try {
+      const payload = {
+        id: v4(),
+        companyId: userInfo?.companyId,
+        entityId: data?.entityId,
+        name: data.name,
+        isPublic: data.isPublic,
+        lastMaintenanceDate: data.lastMaintenanceDate,
+        updatedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+      };
+      console.log(payload);
       await fastify.mongo.collection("units").insertOne(payload);
       return { status: "success", message: "inserted successfully" };
     } catch (error: any) {
@@ -109,14 +60,56 @@ export default fp(async (fastify) => {
     }
   };
 
+  const updateUnit = async (
+    userInfo: decodeType,
+    id: string,
+    data: createUnitBody
+  ) => {
+    try {
+      const result = await fastify.mongo
+        .collection("units")
+        .updateOne(
+          { id, companyId: userInfo.companyId },
+          { $set: { ...data, updatedAt: new Date().toISOString() } }
+        );
+
+      if (result.matchedCount === 0) {
+        throw new Error("Unit not found");
+      }
+      return { status: "success", message: "Unit updated successfully" };
+    } catch (error: any) {
+      console.error("Failed to update unit:", error);
+      throw new Error(`Failed to update unit: ${error.message}`);
+    }
+  };
+
+  const deleteUnit = async (userInfo: decodeType, id: string) => {
+    try {
+      const result = await fastify.mongo
+        .collection("units")
+        .updateOne(
+          { id, companyId: userInfo.companyId },
+          { $set: { isActive: false, updatedAt: new Date().toISOString() } }
+        );
+
+      if (result.matchedCount === 0) {
+        throw new Error("Unit not found");
+      }
+      return { status: "success", message: "Unit deleted successfully" };
+    } catch (error: any) {
+      console.error("Failed to delete unit:", error);
+      throw new Error(`Failed to delete unit: ${error.message}`);
+    }
+  };
+
   // Decorate the fastify instance with the departmentService
   // @ts-ignore
   fastify.decorate("unitsService", {
     getUnits,
     createUnit,
-    getUnitsByEntityId,
     getUnitById,
     updateUnit,
+    deleteUnit,
   });
 });
 
@@ -124,15 +117,22 @@ declare module "fastify" {
   interface FastifyInstance {
     unitsService: {
       getUnits: (userInfo: decodeType) => Promise<getUnitsSchema | null>;
-      getUnitsByEntityId: (entityId: string) => Promise<getUnitsSchema | null>;
-      getUnitById: (id: string) => Promise<getUnitsSchema | null>;
-      updateUnit: (
-        id: string,
-        data: createUnitBody
-      ) => Promise<createCompanyResponse | null>;
+      getUnitById: (
+        userInfo: decodeType,
+        id: string
+      ) => Promise<getUnitsSchema | null>;
       createUnit: (
         userInfo: decodeType,
         data: createUnitBody
+      ) => Promise<createCompanyResponse | null>;
+      updateUnit: (
+        userInfo: decodeType,
+        id: string,
+        data: createUnitBody
+      ) => Promise<createCompanyResponse | null>;
+      deleteUnit: (
+        userInfo: decodeType,
+        id: string
       ) => Promise<createCompanyResponse | null>;
     };
   }

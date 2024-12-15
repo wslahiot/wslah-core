@@ -1,7 +1,7 @@
 import { FastifyRequest } from "fastify";
 import { lockTtlockSchema } from "./schema/lockSchema";
 import { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
-import createPasscode, { createPasscodeSchema } from "./schema/createPasscode";
+import { createPasscodeSchema } from "./schema/createPasscode";
 // import { createPasscodeSchema } from "./schema/createPasscode";
 
 type lockBody = {
