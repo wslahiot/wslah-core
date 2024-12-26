@@ -1,7 +1,7 @@
 import { Type } from "@sinclair/typebox";
 
 export const getOpenStateSchema = {
-  tags: ["TTlock"],
+  tags: ["TTLock"],
   summary: "Get open state",
   description: "Get the open state of a lock",
   params: Type.Object({

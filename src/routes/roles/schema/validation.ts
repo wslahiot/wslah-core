@@ -126,7 +126,7 @@ export const updateGroupSchema = {
 
 // User Assignment Schemas
 export const assignUserRolesSchema = {
-  tags: ["User Assignments"],
+  tags: ["Roles"],
   summary: "Assign roles to user",
   params: Type.Object({ userId: Type.String() }),
   body: AssignUserRolesDto,
@@ -139,7 +139,7 @@ export const assignUserRolesSchema = {
 };
 
 export const assignUserGroupsSchema = {
-  tags: ["User Assignments"],
+  tags: ["Roles"],
   summary: "Assign groups to user",
   params: Type.Object({ userId: Type.String() }),
   body: AssignUserGroupsDto,

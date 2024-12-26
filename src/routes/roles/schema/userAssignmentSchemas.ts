@@ -3,7 +3,7 @@ import { CommonErrorSchema, CommonSuccessSchema } from "./common";
 import { AssignUserRolesDto } from "./types";
 
 export const assignUserRolesSchema = {
-  tags: ["User Assignments"],
+  tags: ["Roles"],
   summary: "Assign roles to user",
   description: "Assign specific roles to a user",
   params: Type.Object({
@@ -19,7 +19,7 @@ export const assignUserRolesSchema = {
 };
 
 export const getUserPermissionsSchema = {
-  tags: ["User Assignments"],
+  tags: ["Roles"],
   summary: "Get user permissions",
   description: "Get all permissions for a specific user",
   params: Type.Object({

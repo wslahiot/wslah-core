@@ -1,7 +1,7 @@
 import { Type } from "@sinclair/typebox";
 
 export const getPasscodesSchema = {
-  tags: ["TTlock"],
+  tags: ["TTLock"],
   summary: "Get passcodes",
   description: "Get passcodes for a lock",
   params: Type.Object({
