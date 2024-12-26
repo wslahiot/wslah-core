@@ -1,56 +1,37 @@
 import { Static, Type } from "@sinclair/typebox";
-// const IHeader = Type.Object({
-//   "x-custom-key": Type.Optional(Type.String()),
-// });
-// type THeader = Static<typeof IHeader>;
+import { UnitSchema, ErrorSchema } from "./types";
 
-const IParams = Type.Object({
-  id: Type.String(),
-});
-// export type TParams = Static<typeof IParams>;
+const GetUnitsResponse = Type.Array(UnitSchema);
 
-const IResponse = Type.Array(
-  Type.Object(
-    {
-      id: Type.String(),
-      entityId: Type.String(),
-      name: Type.String(),
-      // unitType: Type.String(),
-      isPublic: Type.Boolean({ default: false }),
-      lastMaintenanceDate: Type.Optional(Type.String()),
-      updatedAt: Type.String(),
-      createdAt: Type.String(),
-    },
-    {
-      additionalProperties: true,
-    }
-  )
-);
-
-export type TResponse = Static<typeof IResponse>;
-
-const IError = Type.Object({
-  statusCode: Type.Number(),
-  error: Type.String(),
-  message: Type.String(),
-});
+export type TGetUnitsResponse = Static<typeof GetUnitsResponse>;
 
 export const getUnitsSchema = {
   tags: ["Units"],
-  deprecated: false,
-  summary: "Get units info",
-  description: "Get units info",
+  summary: "Get all units",
+  description: "Retrieve all units for the authenticated company",
   response: {
-    200: IResponse,
-    400: IError,
-    404: IError,
-    500: IError,
+    200: GetUnitsResponse,
+    401: ErrorSchema,
+    500: ErrorSchema,
   },
 };
 
-export const getUnitsByEntityIdSchema = {
-  ...getUnitsSchema,
-  params: IParams,
+// For getting unit by ID
+const GetUnitParams = Type.Object({
+  id: Type.String(),
+});
+
+export const getUnitByIdSchema = {
+  tags: ["Units"],
+  summary: "Get unit by ID",
+  description: "Retrieve a specific unit by its ID",
+  params: GetUnitParams,
+  response: {
+    200: UnitSchema,
+    401: ErrorSchema,
+    404: ErrorSchema,
+    500: ErrorSchema,
+  },
 };
 
 import fp from "fastify-plugin";

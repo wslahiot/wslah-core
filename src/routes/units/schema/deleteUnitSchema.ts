@@ -1,34 +1,28 @@
 import { Static, Type } from "@sinclair/typebox";
+import { ErrorSchema } from "./types";
 
-const IParams = Type.Object({
+const DeleteUnitParams = Type.Object({
   id: Type.String(),
 });
-export type TParams = Static<typeof IParams>;
 
-const IResponse = Type.Object({
+const DeleteUnitResponse = Type.Object({
   status: Type.String(),
   message: Type.String(),
 });
 
-export type TResponse = Static<typeof IResponse>;
-
-const IError = Type.Object({
-  statusCode: Type.Number(),
-  error: Type.String(),
-  message: Type.String(),
-});
+export type TDeleteUnitParams = Static<typeof DeleteUnitParams>;
+export type TDeleteUnitResponse = Static<typeof DeleteUnitResponse>;
 
 export const deleteUnitSchema = {
   tags: ["Units"],
-  deprecated: false,
   summary: "Delete unit",
   description: "Soft delete a unit by ID",
-  params: IParams,
+  params: DeleteUnitParams,
   response: {
-    200: IResponse,
-    400: IError,
-    404: IError,
-    500: IError,
+    200: DeleteUnitResponse,
+    401: ErrorSchema,
+    404: ErrorSchema,
+    500: ErrorSchema,
   },
 };
 

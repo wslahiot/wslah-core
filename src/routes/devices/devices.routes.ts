@@ -4,6 +4,7 @@ import { getDeviceSchema } from "./schema/getDeviceSchema";
 import { getDeviceByIdSchema } from "./schema/getDeviceByIdSchema";
 import { deleteDeviceSchema } from "./schema/deleteDeviceSchema";
 import { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
+import { updateDeviceSchema } from "./schema/updateDeviceSchema";
 
 const entity: FastifyPluginAsyncTypebox = async (
   fastify: any
@@ -35,6 +36,7 @@ const entity: FastifyPluginAsyncTypebox = async (
   fastify.route({
     method: "PUT",
     url: "/:id",
+    schema: updateDeviceSchema,
     preHandler: [fastify.authenticate],
     handler: async (request: FastifyRequest) => {
       const { id } = request.params as { id: string };

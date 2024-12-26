@@ -31,6 +31,3 @@ export const deleteCustomerSchema = {
     500: IError,
   },
 };
-
-import fp from "fastify-plugin";
-export default fp(async (fastify) => {});

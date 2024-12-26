@@ -3,6 +3,8 @@ import { createEntitySchema } from "./schema/createEntitiySchema";
 import { getEntitySchema } from "./schema/getEntitySchema";
 import { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 import { updateEntitySchema } from "./schema/updateEntitySchema";
+import { deleteEntitySchema } from "./schema/deleteEntitySchema";
+import { getEntityByIdSchema } from "./schema/getEntityByIdSchema";
 
 const entity: FastifyPluginAsyncTypebox = async (
   fastify: any
@@ -47,6 +49,7 @@ const entity: FastifyPluginAsyncTypebox = async (
   fastify.route({
     method: "DELETE",
     url: "/:id",
+    schema: deleteEntitySchema,
     preHandler: [fastify.authenticate],
     handler: async (request: FastifyRequest) => {
       const { id } = request.params as { id: string };
@@ -58,6 +61,7 @@ const entity: FastifyPluginAsyncTypebox = async (
   fastify.route({
     method: "GET",
     url: "/:id",
+    schema: getEntityByIdSchema,
     preHandler: [fastify.authenticate],
     handler: async (request: FastifyRequest) => {
       const { id } = request.params as { id: string };

@@ -24,7 +24,7 @@ export default fp(async (fastify) => {
     }
 
     const token = fastify.jwt.sign({ ...userData }, { expiresIn: "1h" });
-
+    console.log(userData);
     return {
       token,
       userId: userData.id,

@@ -1,38 +1,31 @@
 import { Static, Type } from "@sinclair/typebox";
-// const IHeader = Type.Object({
-//   "x-custom-key": Type.Optional(Type.String()),
-// });
-// type THeader = Static<typeof IHeader>;
+import { ErrorSchema } from "./types";
+import { CreateUnitBody } from "./createUnitSchema";
 
-const IParams = Type.Object({
+const UpdateUnitParams = Type.Object({
   id: Type.String(),
 });
-// export type TParams = Static<typeof IParams>;
 
-const IResponse = Type.Object({
+const UpdateUnitResponse = Type.Object({
   status: Type.String(),
   message: Type.String(),
 });
 
-export type TResponse = Static<typeof IResponse>;
-
-const IError = Type.Object({
-  statusCode: Type.Number(),
-  error: Type.String(),
-  message: Type.String(),
-});
+export type TUpdateUnitParams = Static<typeof UpdateUnitParams>;
+export type TUpdateUnitResponse = Static<typeof UpdateUnitResponse>;
 
 export const updateUnitSchema = {
   tags: ["Units"],
-  deprecated: false,
-  summary: "Get units info",
-  description: "Get units info",
-  params: IParams,
+  summary: "Update unit",
+  description: "Update an existing unit by ID",
+  params: UpdateUnitParams,
+  body: CreateUnitBody,
   response: {
-    200: IResponse,
-    400: IError,
-    404: IError,
-    500: IError,
+    200: UpdateUnitResponse,
+    400: ErrorSchema,
+    401: ErrorSchema,
+    404: ErrorSchema,
+    500: ErrorSchema,
   },
 };
 

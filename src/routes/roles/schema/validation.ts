@@ -65,6 +65,24 @@ export const createRoleSchema = {
   },
 };
 
+export const getRoleSchema = {
+  tags: ["Roles"],
+  summary: "Get role by ID",
+  params: ParamsWithId,
+  response: {
+    200: Type.Object({
+      id: Type.String(),
+      name: Type.String(),
+      description: Type.Optional(Type.String()),
+      actions: Type.Array(Type.String()),
+      createdAt: Type.String(),
+      updatedAt: Type.String(),
+    }),
+    404: ErrorResponse,
+    500: ErrorResponse,
+  },
+};
+
 export const updateRoleSchema = {
   tags: ["Roles"],
   summary: "Update role",
@@ -135,6 +153,9 @@ export const assignUserGroupsSchema = {
 
 // Example schemas for GET endpoints
 export const getActionSchema = {
+  tags: ["Actions"],
+  summary: "Get action by ID",
+  description: "Get an action by its ID",
   params: Type.Object({
     id: Type.String(),
   }),
@@ -148,19 +169,27 @@ export const getActionSchema = {
       message: Type.String(),
     }),
   },
-}
+};
 
 export const getRolesSchema = {
+  tags: ["Roles"],
+  summary: "Get all roles",
+  description: "Get all roles",
   response: {
-    200: Type.Array(Type.Object({
-      id: Type.String(),
-      name: Type.String(),
-      // ... other role properties
-    })),
+    200: Type.Array(
+      Type.Object({
+        id: Type.String(),
+        name: Type.String(),
+        // ... other role properties
+      })
+    ),
   },
-}
+};
 
 export const getUserPermissionsSchema = {
+  tags: ["Roles"],
+  summary: "Get user permissions",
+  description: "Get all permissions for a specific user",
   params: Type.Object({
     userId: Type.String(),
   }),
@@ -170,11 +199,14 @@ export const getUserPermissionsSchema = {
       message: Type.String(),
     }),
   },
-}
+};
 
 // Add these new schemas
 
 export const deleteActionSchema = {
+  tags: ["Actions"],
+  summary: "Delete action",
+  description: "Delete an action by its ID",
   params: Type.Object({
     id: Type.String(),
   }),
@@ -186,17 +218,25 @@ export const deleteActionSchema = {
 };
 
 export const getActionsSchema = {
+  tags: ["Actions"],
+  summary: "Get all actions",
+  description: "Get all actions",
   response: {
-    200: Type.Array(Type.Object({
-      id: Type.String(),
-      name: Type.String(),
-      description: Type.Optional(Type.String()),
-      // Add other action properties
-    })),
+    200: Type.Array(
+      Type.Object({
+        id: Type.String(),
+        name: Type.String(),
+        description: Type.Optional(Type.String()),
+        // Add other action properties
+      })
+    ),
   },
 };
 
 export const deleteRoleSchema = {
+  tags: ["Roles"],
+  summary: "Delete role",
+  description: "Delete a role by its ID",
   params: Type.Object({
     id: Type.String(),
   }),
@@ -208,17 +248,25 @@ export const deleteRoleSchema = {
 };
 
 export const getGroupsSchema = {
+  tags: ["Groups"],
+  summary: "Get all groups",
+  description: "Get all groups",
   response: {
-    200: Type.Array(Type.Object({
-      id: Type.String(),
-      name: Type.String(),
-      description: Type.Optional(Type.String()),
-      // Add other group properties
-    })),
+    200: Type.Array(
+      Type.Object({
+        id: Type.String(),
+        name: Type.String(),
+        description: Type.Optional(Type.String()),
+        // Add other group properties
+      })
+    ),
   },
 };
 
 export const getGroupByIdSchema = {
+  tags: ["Groups"],
+  summary: "Get group by ID",
+  description: "Get a group by its ID",
   params: Type.Object({
     id: Type.String(),
   }),
@@ -228,6 +276,20 @@ export const getGroupByIdSchema = {
       name: Type.String(),
       description: Type.Optional(Type.String()),
       // Add other group properties
+    }),
+  },
+};
+
+export const deleteGroupSchema = {
+  tags: ["Groups"],
+  summary: "Delete group",
+  description: "Delete a group by its ID",
+  params: Type.Object({
+    id: Type.String(),
+  }),
+  response: {
+    200: Type.Object({
+      success: Type.Boolean(),
     }),
   },
 };

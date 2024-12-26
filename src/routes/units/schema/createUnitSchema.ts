@@ -1,55 +1,31 @@
 import { Static, Type } from "@sinclair/typebox";
+import { ErrorSchema } from "./types";
 
-const IHeader = Type.Object({
-  "x-custom-key": Type.Optional(Type.String()),
-});
-type THeader = Static<typeof IHeader>;
-
-const IParams = Type.Object({});
-export type TParams = Static<typeof IParams>;
-
-const IResponse = Type.Object({
-  message: Type.String(),
-  status: Type.String(),
-});
-
-export const IBody = Type.Object({
+export const CreateUnitBody = Type.Object({
   entityId: Type.Optional(Type.String()),
   name: Type.String(),
-  // unitType: Type.String(),
   isPublic: Type.Boolean({ default: false }),
-  lastMaintenanceDate: Type.Optional(Type.String({ default: "" })),
+  lastMaintenanceDate: Type.Optional(Type.String()),
 });
 
-export type TBody = Static<typeof IBody>;
-
-export type TResponse = Static<typeof IResponse>;
-
-const IError = Type.Object({
-  statusCode: Type.Number(),
-  error: Type.String(),
+const CreateUnitResponse = Type.Object({
+  status: Type.String(),
   message: Type.String(),
 });
-type TError = Static<typeof IError>;
 
-export type createEntityType = {
-  Header: THeader;
-  Params: TParams;
-  Response: TResponse;
-  Error: TError;
-};
+export type TCreateUnitBody = Static<typeof CreateUnitBody>;
+export type TCreateUnitResponse = Static<typeof CreateUnitResponse>;
 
 export const createUnitSchema = {
   tags: ["Units"],
-  deprecated: false,
   summary: "Create new unit",
-  description: "Get user info",
-  body: IBody,
+  description: "Create a new unit in the system",
+  body: CreateUnitBody,
   response: {
-    200: IResponse,
-    400: IError,
-    404: IError,
-    500: IError,
+    201: CreateUnitResponse,
+    400: ErrorSchema,
+    401: ErrorSchema,
+    500: ErrorSchema,
   },
 };
 

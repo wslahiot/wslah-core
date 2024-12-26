@@ -16,6 +16,7 @@ import {
   deleteRoleSchema,
   getGroupsSchema,
   getGroupByIdSchema,
+  deleteGroupSchema,
 } from "./schema/validation";
 
 const roles: FastifyPluginAsyncTypebox = async (fastify): Promise<void> => {
@@ -78,7 +79,7 @@ const roles: FastifyPluginAsyncTypebox = async (fastify): Promise<void> => {
   // Role Routes
   fastify.route({
     method: "POST",
-    url: "/roles",
+    url: "/",
     schema: createRoleSchema,
     preHandler: [fastify.authenticate],
     handler: async (request: any) => {
@@ -115,7 +116,7 @@ const roles: FastifyPluginAsyncTypebox = async (fastify): Promise<void> => {
 
   fastify.route({
     method: "GET",
-    url: "/roles",
+    url: "/",
     schema: getRolesSchema,
     preHandler: [fastify.authenticate],
     handler: async (request: any) => {
@@ -153,6 +154,7 @@ const roles: FastifyPluginAsyncTypebox = async (fastify): Promise<void> => {
   fastify.route({
     method: "DELETE",
     url: "/groups/:id",
+    schema: deleteGroupSchema,
     preHandler: [fastify.authenticate],
     handler: async (request: any) => {
       const { id } = request.params as { id: string };

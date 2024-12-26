@@ -1,9 +1,9 @@
 import fp from "fastify-plugin";
 
-import { TResponse as getUnitsSchema } from "./schema/getUnitsSchema";
+import { TGetUnitsResponse } from "./schema/getUnitsSchema";
 import {
-  TResponse as createCompanyResponse,
-  TBody as createUnitBody,
+  TCreateUnitBody,
+  TCreateUnitResponse,
 } from "./schema/createUnitSchema";
 import { decodeType } from "../../plugins/authenticate";
 
@@ -39,7 +39,7 @@ export default fp(async (fastify) => {
     }
   };
 
-  const createUnit = async (userInfo: decodeType, data: createUnitBody) => {
+  const createUnit = async (userInfo: decodeType, data: TCreateUnitBody) => {
     try {
       const payload = {
         id: v4(),
@@ -63,7 +63,7 @@ export default fp(async (fastify) => {
   const updateUnit = async (
     userInfo: decodeType,
     id: string,
-    data: createUnitBody
+    data: TCreateUnitBody
   ) => {
     try {
       const result = await fastify.mongo
@@ -116,24 +116,24 @@ export default fp(async (fastify) => {
 declare module "fastify" {
   interface FastifyInstance {
     unitsService: {
-      getUnits: (userInfo: decodeType) => Promise<getUnitsSchema | null>;
+      getUnits: (userInfo: decodeType) => Promise<TGetUnitsResponse | null>;
       getUnitById: (
         userInfo: decodeType,
         id: string
-      ) => Promise<getUnitsSchema | null>;
+      ) => Promise<TGetUnitsResponse | null>;
       createUnit: (
         userInfo: decodeType,
-        data: createUnitBody
-      ) => Promise<createCompanyResponse | null>;
+        data: TCreateUnitBody
+      ) => Promise<TCreateUnitResponse | null>;
       updateUnit: (
         userInfo: decodeType,
         id: string,
-        data: createUnitBody
-      ) => Promise<createCompanyResponse | null>;
+        data: TCreateUnitBody
+      ) => Promise<TCreateUnitResponse | null>;
       deleteUnit: (
         userInfo: decodeType,
         id: string
-      ) => Promise<createCompanyResponse | null>;
+      ) => Promise<TCreateUnitResponse | null>;
     };
   }
 }

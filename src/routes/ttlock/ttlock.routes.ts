@@ -2,6 +2,8 @@ import { FastifyRequest } from "fastify";
 import { lockTtlockSchema } from "./schema/lockSchema";
 import { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 import { createPasscodeSchema } from "./schema/createPasscode";
+import { getOpenStateSchema } from "./schema/getOpenStateSchema";
+import { getPasscodesSchema } from "./schema/getPasscodesSchema";
 // import { createPasscodeSchema } from "./schema/createPasscode";
 
 type lockBody = {
@@ -36,18 +38,17 @@ const Ttlock: FastifyPluginAsyncTypebox = async (
   fastify.route({
     method: "GET",
     url: "/getOpenState/:lockId",
-
+    schema: getOpenStateSchema,
     preHandler: [fastify.authenticate],
     handler: async (request: FastifyRequest) => {
       const { lockId } = request.params as { lockId: string };
-
       return await fastify.ttlockService.getOpenState(lockId);
     },
   });
   fastify.route({
     method: "GET",
     url: "/getPasscodes/:lockId",
-
+    schema: getPasscodesSchema,
     preHandler: [fastify.authenticate],
     handler: async (request: FastifyRequest) => {
       const { lockId } = request.params as { lockId: string };
