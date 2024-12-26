@@ -1,36 +1,104 @@
 import fp from "fastify-plugin";
 
-import { TResponse as getUnitsSchema } from "./schema/getUnitsSchema";
+import { TGetUnitsResponse } from "./schema/getUnitsSchema";
 import {
-  TResponse as createCompanyResponse,
-  TBody as createUnitBody,
+  TCreateUnitBody,
+  TCreateUnitResponse,
 } from "./schema/createUnitSchema";
+import { decodeType } from "../../plugins/authenticate";
+
+import { v4 } from "uuid";
 
 export default fp(async (fastify) => {
-  const getUnits = async () => {
-    const result = await fastify.mongo.collection("entities").find().toArray();
-
-    return result;
+  const getUnits = async (userInfo: decodeType) => {
+    try {
+      const result = await fastify.mongo
+        .collection("units")
+        .find({ companyId: userInfo.companyId })
+        .toArray();
+      return result;
+    } catch (error: any) {
+      console.error("Failed to get units:", error);
+      throw new Error(`Failed to get units: ${error.message}`);
+    }
   };
 
-  const createUnit = async (data: createUnitBody) => {
-    console.log(data); // Ensure sensitive data is handled securely in production
-    const payload = {
-      entityId: data.entityId,
-      unitName: data.unitName,
-      unitType: data.unitType,
-      isPublic: data.isPublic,
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-    };
-
+  const getUnitById = async (userInfo: decodeType, id: string) => {
     try {
-      const result = await fastify.mongo.collection("units").insertOne(payload);
-      console.log("Insert successful:", result);
-      return { id: result.insertedId };
+      const unit = await fastify.mongo
+        .collection("units")
+        .findOne({ id, companyId: userInfo.companyId });
+
+      if (!unit) {
+        throw new Error("Unit not found");
+      }
+      return unit;
+    } catch (error: any) {
+      console.error("Failed to get unit:", error);
+      throw new Error(`Failed to get unit: ${error.message}`);
+    }
+  };
+
+  const createUnit = async (userInfo: decodeType, data: TCreateUnitBody) => {
+    try {
+      const payload = {
+        id: v4(),
+        companyId: userInfo?.companyId,
+        entityId: data?.entityId,
+        name: data.name,
+        isPublic: data.isPublic,
+        lastMaintenanceDate: data.lastMaintenanceDate,
+        updatedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+      };
+      console.log(payload);
+      await fastify.mongo.collection("units").insertOne(payload);
+      return { status: "success", message: "inserted successfully" };
     } catch (error: any) {
       console.error("Failed to insert unit:", error);
-      throw new Error("Failed to insert unit: " + error.message);
+      return { message: "Failed to insert unit: " + error.message };
+    }
+  };
+
+  const updateUnit = async (
+    userInfo: decodeType,
+    id: string,
+    data: TCreateUnitBody
+  ) => {
+    try {
+      const result = await fastify.mongo
+        .collection("units")
+        .updateOne(
+          { id, companyId: userInfo.companyId },
+          { $set: { ...data, updatedAt: new Date().toISOString() } }
+        );
+
+      if (result.matchedCount === 0) {
+        throw new Error("Unit not found");
+      }
+      return { status: "success", message: "Unit updated successfully" };
+    } catch (error: any) {
+      console.error("Failed to update unit:", error);
+      throw new Error(`Failed to update unit: ${error.message}`);
+    }
+  };
+
+  const deleteUnit = async (userInfo: decodeType, id: string) => {
+    try {
+      const result = await fastify.mongo
+        .collection("units")
+        .updateOne(
+          { id, companyId: userInfo.companyId },
+          { $set: { isActive: false, updatedAt: new Date().toISOString() } }
+        );
+
+      if (result.matchedCount === 0) {
+        throw new Error("Unit not found");
+      }
+      return { status: "success", message: "Unit deleted successfully" };
+    } catch (error: any) {
+      console.error("Failed to delete unit:", error);
+      throw new Error(`Failed to delete unit: ${error.message}`);
     }
   };
 
@@ -39,16 +107,33 @@ export default fp(async (fastify) => {
   fastify.decorate("unitsService", {
     getUnits,
     createUnit,
+    getUnitById,
+    updateUnit,
+    deleteUnit,
   });
 });
 
 declare module "fastify" {
   interface FastifyInstance {
     unitsService: {
-      getUnits: () => Promise<getUnitsSchema | null>;
+      getUnits: (userInfo: decodeType) => Promise<TGetUnitsResponse | null>;
+      getUnitById: (
+        userInfo: decodeType,
+        id: string
+      ) => Promise<TGetUnitsResponse | null>;
       createUnit: (
-        data: createUnitBody
-      ) => Promise<createCompanyResponse | null>;
+        userInfo: decodeType,
+        data: TCreateUnitBody
+      ) => Promise<TCreateUnitResponse | null>;
+      updateUnit: (
+        userInfo: decodeType,
+        id: string,
+        data: TCreateUnitBody
+      ) => Promise<TCreateUnitResponse | null>;
+      deleteUnit: (
+        userInfo: decodeType,
+        id: string
+      ) => Promise<TCreateUnitResponse | null>;
     };
   }
 }

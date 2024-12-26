@@ -6,19 +6,57 @@ import { Static, Type } from "@sinclair/typebox";
 // type THeader = Static<typeof IHeader>;
 
 // const IParams = Type.Object({});
-// type TParams = Static<typeof IParams>;
+// export type TParams = Static<typeof IParams>;
 
-const IResponse = Type.Array(
+export const IBody = Type.Array(
   Type.Object({
-    unitId: Type.String(),
+    id: Type.String(),
+    // companyId: Type.String(),
+    unitId: Type.Optional(Type.String()),
+    deviceId: Type.String(),
+    name: Type.String(),
     deviceType: Type.String(),
+    isSync: Type.Boolean({ default: false }),
     brand: Type.String(),
-    isPublic: Type.Boolean(),
-    isConnectedToNetwork: Type.Boolean(),
-    status: Type.String(),
-    lastMaintenanceDate: Type.String(),
+    isConnectedToNetwork: Type.Optional(Type.Boolean()),
+    status: Type.Boolean(),
     updatedAt: Type.String(),
+    createdAt: Type.String(),
   })
+);
+
+// _id?: string;
+// companyId: string;
+// unitId: string;
+// deviceId: string;
+// name: string;
+// deviceType: string;
+// isSync: boolean;
+// brand: string;
+// isConnectedToNetwork: boolean;
+// location?: string
+// batteryLevel?: number
+// status: boolean;
+const IResponse = Type.Array(
+  Type.Object(
+    {
+      // companyId: Type.String(),
+      id: Type.String(),
+      unitId: Type.Optional(Type.String()),
+      deviceId: Type.String(),
+      name: Type.String(),
+      deviceType: Type.String(),
+      isSync: Type.Boolean({ default: false }),
+      brand: Type.String(),
+      isConnectedToNetwork: Type.Optional(Type.Boolean()),
+      status: Type.Boolean(),
+      updatedAt: Type.String(),
+      createdAt: Type.String(),
+    },
+    {
+      additionalProperties: true,
+    }
+  )
 );
 
 export type TResponse = Static<typeof IResponse>;

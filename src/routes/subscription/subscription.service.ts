@@ -5,13 +5,22 @@ import {
   TBody as BodySchema,
   createSubscriptionType,
 } from "./schema/createSubscriptionSchema";
-import { ObjectId } from "mongodb";
+
+import { decodeType } from "../../plugins/authenticate";
+import { v4 } from "uuid";
+// import { TResponse as GetSubscriptionSchema } from "./schema/getSubscriptionSchema";
+// import { TBody as UpdateSubscriptionBody } from "./schema/updateSubscriptionSchema";
 
 export default fp(async (fastify) => {
-  const getSubscriptions = async () => {
+  const getSubscriptions = async (userInfo: decodeType) => {
     const result = await fastify.mongo
       .collection("subscriptions")
       .aggregate([
+        {
+          $match: {
+            companyId: userInfo.companyId,
+          },
+        },
         {
           // Convert subscriptionModelId to ObjectId
           $addFields: {
@@ -22,7 +31,7 @@ export default fp(async (fastify) => {
           $lookup: {
             from: "subscriptionModel",
             localField: "subscriptionModelId",
-            foreignField: "_id",
+            foreignField: "id",
             as: "subscriptionModelDetails",
           },
         },
@@ -36,18 +45,12 @@ export default fp(async (fastify) => {
     return result;
   };
 
-  const createSubscription = async (body: BodySchema) => {
-    const { user, ...rest } = body;
-
-    if (!user) {
-      return "No user found";
-    }
-
+  const createSubscription = async (userInfo: decodeType, body: BodySchema) => {
     // Find the subscription model
     const foundSubscriptionModel = await fastify.mongo
       .collection("subscriptionModel")
       .findOne({
-        _id: new ObjectId(body.subscriptionModelId),
+        id: body.subscriptionModelId,
       });
 
     if (!foundSubscriptionModel) {
@@ -56,8 +59,9 @@ export default fp(async (fastify) => {
 
     // Prepare the payload with unique id and other fields
     const payload = {
-      id: new ObjectId().toString(), // Ensure id is unique
-      ...rest,
+      ...body,
+      id: v4(),
+      companyId: userInfo.companyId,
       pricePerMonth:
         parseInt(foundSubscriptionModel.pricePerUnit) *
           parseInt(foundSubscriptionModel.pricePerUnit) || 0,
@@ -66,13 +70,11 @@ export default fp(async (fastify) => {
     };
 
     try {
-      const result = await fastify.mongo
-        .collection("subscriptions")
-        .insertOne(payload);
-      return result;
-    } catch (error) {
+      await fastify.mongo.collection("subscriptions").insertOne(payload);
+      return { status: "success", message: "inserted successfully" };
+    } catch (error: any) {
       console.error("Error creating subscription:", error);
-      throw new Error("Failed to create subscription");
+      return { message: "Failed to create subscription: " + error.message };
     }
   };
 
@@ -87,9 +89,12 @@ export default fp(async (fastify) => {
 declare module "fastify" {
   interface FastifyInstance {
     subscriptionService: {
-      getSubscriptions: () => Promise<GetUserSchemaBody | null>;
+      getSubscriptions: (
+        userInfo: decodeType
+      ) => Promise<GetUserSchemaBody | null>;
       createSubscription: (
-        user: BodySchema
+        userInfo: decodeType,
+        body: BodySchema
       ) => Promise<createSubscriptionType | null>;
     };
   }

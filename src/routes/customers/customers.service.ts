@@ -18,21 +18,19 @@ import {
 
 export default fp(async (fastify) => {
   const getCustomers = async () => {
-    console.log("getCustomers");
     const result = await fastify.mongo.collection("customers").find().toArray();
-    console.log(result);
+
     return result;
   };
 
   const getCustomersById = async (id: string) => {
-    console.log("getCustomers", id);
     const result = await fastify.mongo
       .collection("customers")
       .find({
         idNumber: id,
       })
       .toArray();
-    console.log(result);
+
     return result;
   };
 
@@ -42,16 +40,64 @@ export default fp(async (fastify) => {
       idNumber: customer.idNumber,
     });
     if (existingUser) {
-      throw new Error("User already exists");
+      return { message: "Customer already exists" };
     }
 
-    const result = await fastify.mongo.collection("customers").insertOne({
-      ...customer,
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-    });
+    try {
+      await fastify.mongo.collection("customers").insertOne({
+        ...customer,
+        updatedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+      });
 
-    return result;
+      return { status: "success", message: "inserted successfully" };
+    } catch (error: any) {
+      console.error("Failed to insert customer:", error);
+      return { message: "Failed to insert customer: " + error.message };
+    }
+  };
+
+  const updateCustomer = async (id: string, data: Partial<BodySchema>) => {
+    try {
+      const result = await fastify.mongo.collection("customers").updateOne(
+        { idNumber: id },
+        {
+          $set: {
+            ...data,
+            updatedAt: new Date().toISOString(),
+          },
+        }
+      );
+
+      if (result.matchedCount === 0) {
+        throw new Error("Customer not found");
+      }
+
+      return { status: "success", message: "Customer updated successfully" };
+    } catch (error: any) {
+      console.error("Failed to update customer:", error);
+      throw new Error(`Failed to update customer: ${error.message}`);
+    }
+  };
+
+  const deleteCustomer = async (id: string) => {
+    try {
+      const result = await fastify.mongo
+        .collection("customers")
+        .updateOne(
+          { idNumber: id },
+          { $set: { isActive: false, updatedAt: new Date().toISOString() } }
+        );
+
+      if (result.matchedCount === 0) {
+        throw new Error("Customer not found");
+      }
+
+      return { status: "success", message: "Customer deleted successfully" };
+    } catch (error: any) {
+      console.error("Failed to delete customer:", error);
+      throw new Error(`Failed to delete customer: ${error.message}`);
+    }
   };
 
   // Decorate the fastify instance with the departmentService
@@ -60,6 +106,8 @@ export default fp(async (fastify) => {
     getCustomers,
     getCustomersById,
     createCustomer,
+    updateCustomer,
+    deleteCustomer,
   });
 });
 
@@ -71,6 +119,13 @@ declare module "fastify" {
         id: GetCustomerByIdSchema
       ) => Promise<GetCustomerSchema | null>;
       createCustomer: (user: BodySchema) => Promise<createCustomerType | null>;
+      updateCustomer: (
+        id: string,
+        data: Partial<BodySchema>
+      ) => Promise<{ status: string; message: string }>;
+      deleteCustomer: (
+        id: string
+      ) => Promise<{ status: string; message: string }>;
     };
   }
 }

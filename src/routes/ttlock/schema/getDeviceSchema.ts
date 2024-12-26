@@ -6,7 +6,7 @@ import { Static, Type } from "@sinclair/typebox";
 // type THeader = Static<typeof IHeader>;
 
 // const IParams = Type.Object({});
-// type TParams = Static<typeof IParams>;
+// export type TParams = Static<typeof IParams>;
 
 const IResponse = Type.Array(
   Type.Object({
@@ -16,7 +16,7 @@ const IResponse = Type.Array(
     isPublic: Type.Boolean(),
     isConnectedToNetwork: Type.Boolean(),
     status: Type.String(),
-    lastMaintenanceDate: Type.String(),
+    // lastMaintenanceDate: Type.String(),
     updatedAt: Type.String(),
   })
 );
@@ -30,7 +30,7 @@ const IError = Type.Object({
 });
 
 export const getDeviceSchema = {
-  tags: ["Devices"],
+  tags: ["TTLock"],
   deprecated: false,
   summary: "Get devices info",
   description: "Get devices info",

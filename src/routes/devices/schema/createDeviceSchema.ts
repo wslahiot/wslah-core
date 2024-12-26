@@ -6,23 +6,26 @@ const IHeader = Type.Object({
 type THeader = Static<typeof IHeader>;
 
 const IParams = Type.Object({});
-type TParams = Static<typeof IParams>;
+export type TParams = Static<typeof IParams>;
 
 const IResponse = Type.Object({
   message: Type.String(),
+  status: Type.String(),
 });
 
 export const IBody = Type.Array(
   Type.Object({
     companyId: Type.String(),
-    unitId: Type.Optional(Type.String()),
+    unitId: Type.String(),
+    deviceId: Type.String(),
+    name: Type.String(),
     deviceType: Type.String(),
+    isSync: Type.Boolean({ default: false }),
     brand: Type.String(),
-    isPublic: Type.Boolean(),
     isConnectedToNetwork: Type.Boolean(),
-    status: Type.String(),
-    lastMaintenanceDate: Type.String(),
-    updatedAt: Type.String(),
+    status: Type.Boolean(),
+    location: Type.Optional(Type.String()),
+    batteryLevel: Type.Optional(Type.Number()),
   })
 );
 

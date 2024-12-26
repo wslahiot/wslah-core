@@ -6,15 +6,16 @@ const IHeader = Type.Object({
 type THeader = Static<typeof IHeader>;
 
 const IParams = Type.Object({});
-type TParams = Static<typeof IParams>;
+export type TParams = Static<typeof IParams>;
 
 const IResponse = Type.Object({
   id: Type.String(),
+  status: Type.String(),
 });
 
 export const IBody = Type.Object({
-  companyId: Type.String(),
   name: Type.String(),
+  // imgSource: Type.Optional(Type.String()),
   lat: Type.Number(),
   lng: Type.Number(),
   description: Type.String(),

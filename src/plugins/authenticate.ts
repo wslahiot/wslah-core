@@ -1,9 +1,8 @@
 import fp from "fastify-plugin";
 import fastifyJwt, { FastifyJWTOptions } from "@fastify/jwt";
-import axios from "axios";
 
 export type decodeType = {
-  _id: string;
+  id: string;
   name: string;
   email: string;
   phone: string;
@@ -17,18 +16,8 @@ export default fp<FastifyJWTOptions>(async (fastify) => {
   });
 
   fastify.decorate("authenticate", async function (request, reply) {
-    //? User wslah-auth to verify token
     try {
-      await axios
-        .get("http://localhost:4000/auth/verify", {
-          headers: {
-            Authorization: request.headers.authorization,
-          },
-        })
-        .catch((err) => {
-          console.log(err);
-          throw new Error("Authentication failed");
-        });
+      await request.jwtVerify();
     } catch (err: any) {
       reply
         .code(401)
@@ -45,7 +34,7 @@ export default fp<FastifyJWTOptions>(async (fastify) => {
       const res = fastify.jwt.decode(token);
 
       if (!res) {
-        throw new Error("Invalid token");
+        return { error: "Invalid token" };
       }
 
       return res;

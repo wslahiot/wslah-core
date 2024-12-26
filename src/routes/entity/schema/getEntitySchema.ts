@@ -6,11 +6,11 @@ import { Static, Type } from "@sinclair/typebox";
 // type THeader = Static<typeof IHeader>;
 
 // const IParams = Type.Object({});
-// type TParams = Static<typeof IParams>;
+// export type TParams = Static<typeof IParams>;
 
 const IResponse = Type.Array(
   Type.Object({
-    _id: Type.String(),
+    id: Type.String(),
     companyId: Type.String(),
     name: Type.String(),
     lat: Type.Number(),

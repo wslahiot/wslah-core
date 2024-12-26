@@ -8,12 +8,12 @@ type THeader = Static<typeof IHeader>;
 const IParams = Type.Object({
   id: Type.String(),
 });
-type TParams = Static<typeof IParams>;
+export type TParams = Static<typeof IParams>;
 
 const IResponse = Type.Array(
   Type.Object(
     {
-      _id: Type.String(),
+      id: Type.String(),
       companyId: Type.String(),
     },
     {

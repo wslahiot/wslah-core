@@ -3,6 +3,8 @@ import {
   getCustomerByIdSchema,
   getCustomerSchema,
 } from "./schema/getCustomerInfoSchema";
+import { updateCustomerSchema } from "./schema/updateCustomerSchema";
+import { deleteCustomerSchema } from "./schema/deleteCustomerSchema";
 
 const users = async (fastify: any): Promise<void> => {
   // api to get specific user
@@ -35,6 +37,29 @@ const users = async (fastify: any): Promise<void> => {
     handler: async (request: any) => {
       const { id } = request.params;
       return await fastify.customersService.getCustomersById(id);
+    },
+  });
+
+  fastify.route({
+    method: "PUT",
+    url: "/:id",
+    schema: updateCustomerSchema,
+    preHandler: [fastify.authenticate],
+    handler: async (request: any) => {
+      const { id } = request.params;
+      const { body } = request;
+      return await fastify.customersService.updateCustomer(id, body);
+    },
+  });
+
+  fastify.route({
+    method: "DELETE",
+    url: "/:id",
+    schema: deleteCustomerSchema,
+    preHandler: [fastify.authenticate],
+    handler: async (request: any) => {
+      const { id } = request.params;
+      return await fastify.customersService.deleteCustomer(id);
     },
   });
 };

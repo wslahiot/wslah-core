@@ -11,8 +11,9 @@ const users = async (fastify: any): Promise<void> => {
     url: "/",
     schema: getSubscriptionSchema,
     // preHandler: [fastify.authenticate],
-    handler: async () => {
-      return await fastify.subscriptionService.getSubscriptions();
+    handler: async (request: any) => {
+      const decoded = fastify.decode(request.headers.authorization);
+      return await fastify.subscriptionService.getSubscriptions(decoded);
     },
   });
   // Create a new user
@@ -25,12 +26,10 @@ const users = async (fastify: any): Promise<void> => {
       const data = request.body;
       const decoded = fastify.decode(request.headers.authorization);
 
-      const body = {
-        ...data,
-        user: decoded,
-      };
-
-      return await fastify.subscriptionService.createSubscription(body);
+      return await fastify.subscriptionService.createSubscription(
+        decoded,
+        data
+      );
     },
   });
   //Example of a route

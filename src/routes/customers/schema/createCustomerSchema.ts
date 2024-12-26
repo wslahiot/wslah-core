@@ -6,7 +6,7 @@ const IHeader = Type.Object({
 type THeader = Static<typeof IHeader>;
 
 const IParams = Type.Object({});
-type TParams = Static<typeof IParams>;
+export type TParams = Static<typeof IParams>;
 
 const IResponse = Type.Object({
   insertedId: Type.String(),
@@ -51,7 +51,3 @@ export const createCustomerSchema = {
     500: IError,
   },
 };
-
-import fp from "fastify-plugin";
-
-export default fp(async (fastify) => {});

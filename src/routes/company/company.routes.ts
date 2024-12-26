@@ -2,6 +2,9 @@ import { FastifyRequest } from "fastify";
 import { createCompanySchema } from "./schema/createCompanySchema";
 import { getCompanySchema } from "./schema/getCompaniesSchema";
 import { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
+import { updateCompanySchema } from "./schema/updateCompanySchema";
+import { getCompanyByIdSchema } from "./schema/getCompanyByIdSchema";
+import { deleteCompanySchema } from "./schema/deleteCompanySchema";
 
 const company: FastifyPluginAsyncTypebox = async (
   fastify: any
@@ -25,6 +28,41 @@ const company: FastifyPluginAsyncTypebox = async (
     handler: async (request: FastifyRequest) => {
       const { body } = request;
       return await fastify.companyService.createCompany(body);
+    },
+  });
+
+  fastify.route({
+    method: "PUT",
+    url: "/:id",
+    schema: updateCompanySchema,
+    preHandler: [fastify.authenticate],
+    handler: async (request: FastifyRequest) => {
+      const { id } = request.params as { id: string };
+      const { body } = request;
+
+      return await fastify.companyService.updateCompany(id, body);
+    },
+  });
+
+  fastify.route({
+    method: "DELETE",
+    url: "/:id",
+    schema: deleteCompanySchema,
+    preHandler: [fastify.authenticate],
+    handler: async (request: FastifyRequest) => {
+      const { id } = request.params as { id: string };
+      return await fastify.companyService.deleteCompany(id);
+    },
+  });
+
+  fastify.route({
+    method: "GET",
+    url: "/:id",
+    schema: getCompanyByIdSchema,
+    preHandler: [fastify.authenticate],
+    handler: async (request: FastifyRequest) => {
+      const { id } = request.params as { id: string };
+      return await fastify.companyService.getCompanyById(id);
     },
   });
 };

@@ -3,10 +3,12 @@ import fp from "fastify-plugin";
 import { TResponse as GetUserSchemaBody } from "./schema/getUserInfoSchema";
 import { createUserType, TBody as BodySchema } from "./schema/createUserSchema";
 
+import { v4 } from "uuid";
+
 export default fp(async (fastify) => {
   const getUsers = async () => {
     const result = await fastify.mongo.collection("users").find().toArray();
-    console.log(result);
+
     return result;
   };
 
@@ -16,16 +18,22 @@ export default fp(async (fastify) => {
       $or: [{ username: user.username }, { phone: user.phone }],
     });
     if (existingUser) {
-      throw new Error("User already exists");
+      return { message: "User already exists" };
     }
 
-    const result = await fastify.mongo.collection("users").insertOne({
-      ...user,
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-    });
+    try {
+      await fastify.mongo.collection("users").insertOne({
+        ...user,
+        id: v4(),
+        updatedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+      });
 
-    return result;
+      return { status: "success", message: "inserted successfully" };
+    } catch (error: any) {
+      console.error("Failed to insert user:", error);
+      return { message: "Failed to insert user: " + error.message };
+    }
   };
 
   // Decorate the fastify instance with the departmentService

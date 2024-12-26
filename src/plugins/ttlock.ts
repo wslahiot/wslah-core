@@ -18,6 +18,7 @@ interface ContentBuilderSchema {
   clientId: string;
   accessToken: string;
   currentDate: string;
+  // lockId: string;
 }
 
 export default fp<TtlockTokenPluginOptions>(
@@ -25,20 +26,18 @@ export default fp<TtlockTokenPluginOptions>(
     let token: Token | null = null; // Variable to hold the token object
     let expirationTime: number | null = null; // Variable to hold the expiration time of the token
 
-    fastify.decorate("generateToken", async (): Promise<Token> => {
-      const ttlockPassword = process.env.ttlockPassword;
+    fastify.decorate("generateToken", async (): Promise<any> => {
+      const TTLOCK_PASSWORD = process.env.TTLOCK_PASSWORD;
 
-      if (!ttlockPassword) {
-        throw new Error(
-          "The ttlockPassword environment variable is not defined."
-        );
+      if (!TTLOCK_PASSWORD) {
+        return Promise.reject(new Error("No TTLock password provided."));
       }
 
       const hash = md5.create();
-      hash.update(ttlockPassword);
+      hash.update(TTLOCK_PASSWORD);
       const hashedPassword = hash.hex();
 
-      const content = `clientId=${process.env.clientId}&clientSecret=${process.env.clientSecret}&username=${process.env.ttlockUsername}&password=${hashedPassword}`;
+      const content = `clientId=${process.env.TTLOCK_CLIENT_ID}&clientSecret=${process.env.TTLOCK_CLIENT_SECRET}&username=${process.env.TTLOCK_USERNAME}&password=${hashedPassword}`;
 
       try {
         const response = await axios({
@@ -54,16 +53,15 @@ export default fp<TtlockTokenPluginOptions>(
         return token;
       } catch (error) {
         fastify.log.error(error);
-        throw error;
       }
     });
 
-    fastify.decorate("refreshToken", async (): Promise<Token> => {
+    fastify.decorate("refreshToken", async (): Promise<any> => {
       if (!token || !token.refresh_token) {
-        throw new Error("No refresh token available.");
+        return Promise.reject(new Error("No refresh token available."));
       }
 
-      const content = `clientId=${process.env.clientId}&clientSecret=${process.env.clientSecret}&refreshToken=${token.refresh_token}&grantType=refresh_token`;
+      const content = `clientId=${process.env.TTLOCK_CLIENT_ID}&clientSecret=${process.env.TTLOCK_CLIENT_SECRET}&refreshToken=${token.refresh_token}&grantType=refresh_token`;
 
       try {
         const response = await axios({
@@ -79,7 +77,6 @@ export default fp<TtlockTokenPluginOptions>(
         return token;
       } catch (error) {
         fastify.log.error(error);
-        throw error;
       }
     });
 
@@ -100,9 +97,10 @@ export default fp<TtlockTokenPluginOptions>(
       async (): Promise<ContentBuilderSchema> => {
         const token = await fastify.getToken();
         return {
-          clientId: `clientId=${process.env.clientId}`,
-          accessToken: `accessToken=${token.access_token}`,
+          clientId: `clientId=${process.env.TTLOCK_CLIENT_ID}&clientSecret=${process.env.TTLOCK_CLIENT_SECRET}&`,
+          accessToken: `accessToken=${token.access_token}&`,
           currentDate: `date=${new Date().getTime()}`,
+          // lockId: `lockId=${process.env.lockId}`,
         };
       }
     );

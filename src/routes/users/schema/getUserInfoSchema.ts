@@ -6,11 +6,11 @@ const IHeader = Type.Object({
 type THeader = Static<typeof IHeader>;
 
 const IParams = Type.Object({});
-type TParams = Static<typeof IParams>;
+export type TParams = Static<typeof IParams>;
 
 const IResponse = Type.Array(
   Type.Object({
-    _id: Type.String(),
+    id: Type.String(),
     companyId: Type.String(),
     username: Type.String(),
     password: Type.String(),
@@ -36,7 +36,7 @@ export type getUserInfoSchemaType = {
 };
 
 export const getUserByIdSchema = {
-  tags: ["users"],
+  tags: ["Users"],
   deprecated: false,
   summary: "Get user by id info",
   description: "Get user by id info",
@@ -51,7 +51,7 @@ export const getUserByIdSchema = {
 };
 
 export const getUserSchema = {
-  tags: ["users"],
+  tags: ["Users"],
   deprecated: false,
   summary: "Get user info",
   description: "Get user info",

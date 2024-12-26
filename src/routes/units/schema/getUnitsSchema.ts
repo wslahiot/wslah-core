@@ -1,43 +1,36 @@
 import { Static, Type } from "@sinclair/typebox";
+import { UnitSchema, ErrorSchema } from "./types";
 
-// const IHeader = Type.Object({
-//   "x-custom-key": Type.Optional(Type.String()),
-// });
-// type THeader = Static<typeof IHeader>;
+const GetUnitsResponse = Type.Array(UnitSchema);
 
-// const IParams = Type.Object({});
-// type TParams = Static<typeof IParams>;
-
-const IResponse = Type.Array(
-  Type.Object({
-    id: Type.String(),
-    entityId: Type.String(),
-    unitName: Type.String(),
-    unitType: Type.String(),
-    isPublic: Type.Boolean(),
-    updatedAt: Type.String(),
-    createdAt: Type.String(),
-  })
-);
-
-export type TResponse = Static<typeof IResponse>;
-
-const IError = Type.Object({
-  statusCode: Type.Number(),
-  error: Type.String(),
-  message: Type.String(),
-});
+export type TGetUnitsResponse = Static<typeof GetUnitsResponse>;
 
 export const getUnitsSchema = {
   tags: ["Units"],
-  deprecated: false,
-  summary: "Get units info",
-  description: "Get units info",
+  summary: "Get all units",
+  description: "Retrieve all units for the authenticated company",
   response: {
-    200: IResponse,
-    400: IError,
-    404: IError,
-    500: IError,
+    200: GetUnitsResponse,
+    401: ErrorSchema,
+    500: ErrorSchema,
+  },
+};
+
+// For getting unit by ID
+const GetUnitParams = Type.Object({
+  id: Type.String(),
+});
+
+export const getUnitByIdSchema = {
+  tags: ["Units"],
+  summary: "Get unit by ID",
+  description: "Retrieve a specific unit by its ID",
+  params: GetUnitParams,
+  response: {
+    200: UnitSchema,
+    401: ErrorSchema,
+    404: ErrorSchema,
+    500: ErrorSchema,
   },
 };
 

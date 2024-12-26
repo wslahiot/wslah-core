@@ -6,9 +6,12 @@ const IHeader = Type.Object({
 type THeader = Static<typeof IHeader>;
 
 const IParams = Type.Object({});
-type TParams = Static<typeof IParams>;
+export type TParams = Static<typeof IParams>;
 
-const IResponse = Type.Object({});
+const IResponse = Type.Object({
+  message: Type.String(),
+  status: Type.String(),
+});
 
 export const IBody = Type.Object({
   name: Type.String(),
