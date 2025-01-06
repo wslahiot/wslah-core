@@ -1,8 +1,9 @@
-import fp from "fastify-plugin";
 import { v4 } from "uuid";
-import { TResponse as GetReservationsSchema } from "./schema/getReservationsSchema";
+import axios from "axios";
+import moment from "moment";
+
 import {
-  TResponse as CreateReservationResponse,
+  // TResponse as CreateReservationResponse,
   TBody as CreateReservationBody,
 } from "./schema/createReservationSchema";
 import {
@@ -10,149 +11,191 @@ import {
   TBody as UpdateReservationBody,
 } from "./schema/updateReservationSchema";
 import { TResponse as DeleteReservationResponse } from "./schema/deleteReservationSchema";
-import { decodeType } from "../../plugins/authenticate";
+import { TResponse as GetAvailableHoursResponse } from "./schema/availabilitySchema";
+import { AVAILABLE_HOURS } from "../../utils/helper";
 
-export default fp(async (fastify) => {
-  const getReservations = async (userInfo: decodeType) => {
-    try {
+export const ReservationsService = (fastify: any) => {
+  return {
+    createReservation: async (data: CreateReservationBody) => {
+      // // Validate the hours
+      // validateReservationHours(data.reservedHours);
+
+      // // Check availability
+      // await checkAvailability(
+      //   data.unitId,
+      //   data.reservationDate,
+      //   data.reservedHours
+      // );
+
+      const reservation = {
+        id: v4(),
+        unitId: data.unitId,
+        customerInfo: data.customerInfo,
+        reservationDate: data.reservationDate,
+        reservedHours: data.reservedHours,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
       const result = await fastify.mongo
         .collection("reservations")
+        .insertOne(reservation);
+
+      if (result.insertedId) {
+        // try {
+        //   const { customerInfo, id: reservationId } = reservation;
+        //   const { name: customerName, phoneNumber } = customerInfo;
+
+        //   // Calculate start and end dates based on reservation data
+        //   const startDate = `${data.reservationDate} ${data.reservedHours[0]}:00`;
+        //   const endDate = `${data.reservationDate} ${
+        //     data.reservedHours[data.reservedHours.length - 1]
+        //   }:00`;
+
+        //   await axios({
+        //     method: "post",
+        //     url: `${process.env.VARANDA_API_URL}/SendUtils/SendCompanySms`,
+        //     headers: {
+        //       "Content-Type": "application/json",
+        //     },
+        //     data: {
+        //       companyId,
+        //       phoneNumber,
+        //       message: `
+        //       🎉 مرحباً ${customerName},
+        //       لقد تم إنشاء كود لك لفتح الباب في الفترة المحددة أدناه:
+        //       📅 من: ${moment(startDate).format("YYYY-MM-DD HH:mm:ss")}
+        //       📅 إلى: ${moment(endDate).format("YYYY-MM-DD HH:mm:ss")}
+        //       الكود الخاص بك هو:
+        //       🔑 ${passcode}
+        //       نتمنى لك وقتاً ممتعاً! 😊
+
+        //       لالغاء الحجز يرجى الضغط على الرابط التالي:
+        //       ${
+        //         process.env.APP_URL
+        //       }/calendar/cancel-reservation/${reservationId}/${companyId}?mobile=${phoneNumber}`,
+        //     },
+        //   });
+        // } catch (error) {
+        //   fastify.log.error("Failed to send SMS notification:", error);
+        //   // Continue with success response as SMS is not critical
+        // }
+
+        return {
+          status: "success",
+          message: "Reservation created",
+        };
+      }
+      return {
+        status: "error",
+        message: "Reservation not created",
+      };
+    },
+
+    getAvailableHours: async (unitId: string, date: string) => {
+      const reservations = await fastify.mongo
+        .collection("reservations")
         .find({
-          companyId: userInfo.companyId,
-          isActive: true,
+          unitId: unitId,
+          reservationDate: date,
         })
         .toArray();
 
-      return result;
-    } catch (error: any) {
-      console.error("Failed to get reservations:", error);
-      throw new Error(`Failed to get reservations: ${error.message}`);
-    }
-  };
-
-  const getReservationById = async (userInfo: decodeType, id: string) => {
-    try {
-      const result = await fastify.mongo.collection("reservations").findOne({
-        id,
-        companyId: userInfo.companyId,
-        isActive: true,
-      });
-
-      if (!result) {
-        throw new Error("Reservation not found");
-      }
-
-      return result;
-    } catch (error: any) {
-      console.error("Failed to get reservation:", error);
-      throw new Error(`Failed to get reservation: ${error.message}`);
-    }
-  };
-
-  const createReservation = async (
-    userInfo: decodeType,
-    data: CreateReservationBody
-  ) => {
-    const payload = {
-      id: v4(),
-      companyId: userInfo.companyId,
-      ...data,
-      isActive: true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    try {
-      await fastify.mongo.collection("reservations").insertOne(payload);
-      return { status: "success", message: "Reservation created successfully" };
-    } catch (error: any) {
-      console.error("Failed to create reservation:", error);
-      throw new Error(`Failed to create reservation: ${error.message}`);
-    }
-  };
-
-  const updateReservation = async (
-    userInfo: decodeType,
-    id: string,
-    data: UpdateReservationBody
-  ) => {
-    try {
-      const result = await fastify.mongo.collection("reservations").updateOne(
-        { id, companyId: userInfo.companyId, isActive: true },
-        {
-          $set: {
-            ...data,
-            updatedAt: new Date().toISOString(),
-          },
-        }
+      const bookedHours = reservations.flatMap((res: any) => res.reservedHours);
+      const availableHours = AVAILABLE_HOURS.filter(
+        (hour) => !bookedHours.includes(hour)
       );
 
-      if (result.matchedCount === 0) {
-        throw new Error("Reservation not found");
+      return {
+        date,
+        availableHours,
+        bookedHours,
+      };
+    },
+
+    getReservations: async () => {
+      const reservations = await fastify.mongo
+        .collection("reservations")
+        .find()
+        .toArray();
+      return reservations;
+    },
+
+    getReservationById: async (id: string) => {
+      const reservation = await fastify.mongo
+        .collection("reservations")
+        .findOne({ id });
+      return reservation;
+    },
+
+    updateReservation: async (id: string, data: UpdateReservationBody) => {
+      const reservation = await fastify.mongo
+        .collection("reservations")
+        .updateOne({ id }, { $set: data });
+
+      if (reservation.modifiedCount === 0) {
+        return {
+          status: "error",
+          message: "Reservation not found",
+        };
       }
 
-      return { status: "success", message: "Reservation updated successfully" };
-    } catch (error: any) {
-      console.error("Failed to update reservation:", error);
-      throw new Error(`Failed to update reservation: ${error.message}`);
-    }
-  };
+      return {
+        status: "success",
+        message: "Reservation updated",
+      };
+    },
 
-  const deleteReservation = async (userInfo: decodeType, id: string) => {
-    try {
-      const result = await fastify.mongo.collection("reservations").updateOne(
-        { id, companyId: userInfo.companyId, isActive: true },
-        {
-          $set: {
-            isActive: false,
-            updatedAt: new Date().toISOString(),
-          },
-        }
-      );
+    deleteReservation: async (id: string) => {
+      const reservation = await fastify.mongo
+        .collection("reservations")
+        .deleteOne({ id });
 
-      if (result.matchedCount === 0) {
-        throw new Error("Reservation not found");
+      if (reservation.deletedCount === 0) {
+        return {
+          status: "error",
+          message: "Reservation not found",
+        };
       }
 
-      return { status: "success", message: "Reservation deleted successfully" };
-    } catch (error: any) {
-      console.error("Failed to delete reservation:", error);
-      throw new Error(`Failed to delete reservation: ${error.message}`);
-    }
-  };
+      return {
+        status: "success",
+        message: "Reservation deleted",
+      };
+    },
 
-  fastify.decorate("reservationsService", {
-    getReservations,
-    getReservationById,
-    createReservation,
-    updateReservation,
-    deleteReservation,
-  } as any);
-});
+    getReservationsByUnitId: async (unitId: string) => {
+      const reservations = await fastify.mongo
+        .collection("reservations")
+        .find({ unitId })
+        .toArray();
+      return reservations;
+    },
+  };
+};
 
 declare module "fastify" {
   interface FastifyInstance {
     reservationsService: {
-      getReservations: (
-        userInfo: decodeType
-      ) => Promise<GetReservationsSchema | null>;
-      getReservationById: (
-        userInfo: decodeType,
-        id: string
-      ) => Promise<GetReservationsSchema[0] | null>;
-      createReservation: (
-        userInfo: decodeType,
-        data: CreateReservationBody
-      ) => Promise<CreateReservationResponse | null>;
+      getReservations: () => Promise<any[]>;
+      getReservationsByUnitId: (unitId: string) => Promise<any[]>;
+      getReservationById: (id: string) => Promise<any>;
+      createReservation: (data: CreateReservationBody) => Promise<{
+        status: string;
+        message: string;
+        reservationId?: string;
+        reservation?: any;
+      }>;
       updateReservation: (
-        userInfo: decodeType,
         id: string,
         data: UpdateReservationBody
-      ) => Promise<UpdateReservationResponse | null>;
-      deleteReservation: (
-        userInfo: decodeType,
-        id: string
-      ) => Promise<DeleteReservationResponse | null>;
+      ) => Promise<UpdateReservationResponse>;
+      deleteReservation: (id: string) => Promise<DeleteReservationResponse>;
+      getAvailableHours: (
+        unitId: string,
+        date: string
+      ) => Promise<GetAvailableHoursResponse>;
     };
   }
 }

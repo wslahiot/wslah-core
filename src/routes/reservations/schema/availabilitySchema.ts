@@ -1,15 +1,17 @@
 import { Type, Static } from "@sinclair/typebox";
 
 export const IParams = Type.Object({
-  id: Type.String(),
+  unitId: Type.String(),
+  date: Type.String(),
 });
 
 export const IResponse = Type.Object({
-  status: Type.String(),
-  message: Type.String(),
+  date: Type.String(),
+  availableHours: Type.Array(Type.String()),
+  bookedHours: Type.Array(Type.String()),
 });
 
-export const deleteReservationSchema = {
+export const availabilitySchema = {
   params: IParams,
   response: {
     200: IResponse,

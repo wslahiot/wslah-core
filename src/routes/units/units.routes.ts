@@ -11,6 +11,7 @@ const units: FastifyPluginAsyncTypebox = async (fastify): Promise<void> => {
     schema: getUnitsSchema,
     preHandler: [fastify.authenticate],
     handler: async (request: any) => {
+      console.log("getUnits", JSON.stringify(fastify, null, 2));
       const decoded = fastify.decode(request.headers.authorization);
       return await fastify.unitsService.getUnits(decoded);
     },

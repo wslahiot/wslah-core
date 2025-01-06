@@ -1,21 +1,26 @@
-import { FastifyRequest } from "fastify";
 import { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 import { createReservationSchema } from "./schema/createReservationSchema";
+import { getReservationSchema } from "./schema/getReservationSchema";
 import { getReservationsSchema } from "./schema/getReservationsSchema";
 import { updateReservationSchema } from "./schema/updateReservationSchema";
 import { deleteReservationSchema } from "./schema/deleteReservationSchema";
+import { availabilitySchema } from "./schema/availabilitySchema";
+import { ReservationsService } from "./reservations.service";
 
 const reservations: FastifyPluginAsyncTypebox = async (
-  fastify: any
+  fastify
 ): Promise<void> => {
+  const service = ReservationsService(fastify) as any;
+
+  fastify.decorate("reservationsService", service);
+
   fastify.route({
     method: "GET",
     url: "/",
     schema: getReservationsSchema,
-    preHandler: [fastify.authenticate],
-    handler: async (request: FastifyRequest) => {
-      const decoded = fastify.decode(request.headers.authorization);
-      return await fastify.reservationsService.getReservations(decoded);
+    handler: async () => {
+      const reservations = await fastify.reservationsService.getReservations();
+      return reservations || [];
     },
   });
 
@@ -23,11 +28,33 @@ const reservations: FastifyPluginAsyncTypebox = async (
     method: "POST",
     url: "/",
     schema: createReservationSchema,
-    preHandler: [fastify.authenticate],
-    handler: async (request: FastifyRequest) => {
-      const { body } = request;
-      const decoded = fastify.decode(request.headers.authorization);
-      return await fastify.reservationsService.createReservation(decoded, body);
+    handler: async (request, reply) => {
+      const result = await fastify.reservationsService.createReservation(
+        request.body
+      );
+
+      if (result.status === "success") {
+        return {
+          status: "success",
+          message: "Reservation created",
+        };
+      }
+      return {
+        status: "error",
+        message: result.message,
+      };
+    },
+  });
+
+  fastify.route({
+    method: "GET",
+    url: "/:id",
+    schema: getReservationSchema,
+    handler: async (request: any) => {
+      const reservation = await fastify.reservationsService.getReservationById(
+        request.params.id
+      );
+      return reservation;
     },
   });
 
@@ -35,16 +62,13 @@ const reservations: FastifyPluginAsyncTypebox = async (
     method: "PUT",
     url: "/:id",
     schema: updateReservationSchema,
-    preHandler: [fastify.authenticate],
-    handler: async (request: FastifyRequest) => {
-      const { id } = request.params as { id: string };
-      const { body } = request;
-      const decoded = fastify.decode(request.headers.authorization);
-      return await fastify.reservationsService.updateReservation(
-        decoded,
-        id,
-        body
+
+    handler: async (request: any) => {
+      const reservation = await fastify.reservationsService.updateReservation(
+        request.params.id,
+        request.body
       );
+      return reservation || null;
     },
   });
 
@@ -52,23 +76,27 @@ const reservations: FastifyPluginAsyncTypebox = async (
     method: "DELETE",
     url: "/:id",
     schema: deleteReservationSchema,
-    preHandler: [fastify.authenticate],
-    handler: async (request: FastifyRequest) => {
-      const { id } = request.params as { id: string };
-      const decoded = fastify.decode(request.headers.authorization);
-      return await fastify.reservationsService.deleteReservation(decoded, id);
+
+    handler: async (request: any) => {
+      const reservation = await fastify.reservationsService.deleteReservation(
+        request.params.id
+      );
+      return reservation || null;
     },
   });
 
   fastify.route({
     method: "GET",
-    url: "/:id",
-    schema: getReservationsSchema,
-    preHandler: [fastify.authenticate],
-    handler: async (request: FastifyRequest) => {
-      const { id } = request.params as { id: string };
-      const decoded = fastify.decode(request.headers.authorization);
-      return await fastify.reservationsService.getReservationById(decoded, id);
+    url: "/availability/:unitId/:date",
+    schema: availabilitySchema,
+    handler: async (request: any) => {
+      const { unitId, date } = request.params as {
+        unitId: string;
+        date: string;
+      };
+      const availableHours =
+        await fastify.reservationsService.getAvailableHours(unitId, date);
+      return availableHours || [];
     },
   });
 };
