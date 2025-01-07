@@ -6,7 +6,6 @@ import {
   TCreateUnitResponse,
 } from "./schema/createUnitSchema";
 import { decodeType } from "../../plugins/authenticate";
-
 import { v4 } from "uuid";
 
 export default fp(async (fastify) => {
@@ -14,7 +13,32 @@ export default fp(async (fastify) => {
     try {
       const result = await fastify.mongo
         .collection("units")
-        .find({ companyId: userInfo.companyId })
+        .aggregate([
+          { $match: { companyId: userInfo.companyId } },
+          {
+            $addFields: {
+              unitId: "$id",
+            },
+          },
+          {
+            $lookup: {
+              from: "unitConfig",
+              localField: "id",
+              foreignField: "unitId",
+              as: "unitDetails",
+            },
+          },
+          {
+            $addFields: {
+              imagePath: { $arrayElemAt: ["$unitDetails.imagePath", 0] },
+            },
+          },
+          {
+            $project: {
+              unitDetails: 0, // Remove the unitDetails array since we've extracted imagePath
+            },
+          },
+        ])
         .toArray();
       return result;
     } catch (error: any) {
@@ -46,7 +70,7 @@ export default fp(async (fastify) => {
         companyId: userInfo?.companyId,
         entityId: data?.entityId,
         name: data.name,
-        isPublic: data.isPublic,
+
         lastMaintenanceDate: data.lastMaintenanceDate,
         updatedAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),

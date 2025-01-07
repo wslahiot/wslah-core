@@ -100,6 +100,18 @@ export default fp(async (fastify) => {
     }
   };
 
+  const getEntitiesAndUnitsByCompanyId = async (id: string) => {
+    const entities = await fastify.mongo
+      .collection("entities")
+      .find({ companyId: id })
+      .toArray();
+    const units = await fastify.mongo
+      .collection("units")
+      .find({ companyId: id })
+      .toArray();
+    return { entities, units };
+  };
+
   // Decorate the fastify instance with the departmentService
   // @ts-ignore
   fastify.decorate("companyService", {
@@ -108,12 +120,14 @@ export default fp(async (fastify) => {
     createCompany,
     updateCompany,
     deleteCompany,
+    getEntitiesAndUnitsByCompanyId,
   });
 });
 
 declare module "fastify" {
   interface FastifyInstance {
     companyService: {
+      getEntitiesAndUnitsByCompanyId: (id: string) => Promise<any>;
       getCompanies: () => Promise<getCompaniesSchema | null>;
       updateCompany: (
         id: string,

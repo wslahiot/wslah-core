@@ -56,11 +56,37 @@ export default fp(async (fastify) => {
 
   const getUnitConfigById = async (id: string) => {
     try {
-      const unitConfig = await fastify.mongo.collection("unitConfig").findOne({
-        unitId: id,
-      });
+      const unitConfig = await fastify.mongo
+        .collection("unitConfig")
+        .aggregate([
+          {
+            $match: {
+              unitId: id,
+            },
+          },
+          {
+            $lookup: {
+              from: "units",
+              localField: "unitId",
+              foreignField: "id",
+              as: "unit",
+            },
+          },
+          {
+            $addFields: {
+              companyId: { $arrayElemAt: ["$unit.companyId", 0] },
+            },
+          },
+          {
+            $project: {
+              unit: 0,
+              // Include other fields you want to keep
+            },
+          },
+        ])
+        .toArray();
 
-      if (!unitConfig) {
+      if (!unitConfig.length) {
         return {
           status: "failed",
           message: "Unit configuration not found",
@@ -70,7 +96,7 @@ export default fp(async (fastify) => {
       return {
         status: "success",
         message: "Unit configuration found",
-        data: unitConfig,
+        data: unitConfig[0],
       };
     } catch (error: any) {
       console.error("Failed to get unit configuration:", error);

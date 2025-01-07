@@ -16,6 +16,13 @@ import { AVAILABLE_HOURS } from "../../utils/helper";
 
 export const ReservationsService = (fastify: any) => {
   return {
+    getCompanyId: async (unitId: string) => {
+      const unit = await fastify.mongo
+        .collection("units")
+        .findOne({ id: unitId });
+
+      return unit?.companyId;
+    },
     createReservation: async (data: CreateReservationBody) => {
       // // Validate the hours
       // validateReservationHours(data.reservedHours);
@@ -37,6 +44,12 @@ export const ReservationsService = (fastify: any) => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
+
+      const companyId = await fastify.reservationsService.getCompanyId(
+        data.unitId
+      );
+
+      console.log(companyId);
 
       const result = await fastify.mongo
         .collection("reservations")

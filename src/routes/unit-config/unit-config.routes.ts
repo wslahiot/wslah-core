@@ -37,7 +37,7 @@ const unitConfig: FastifyPluginAsyncTypebox = async (
     method: "GET",
     url: "/:id",
     schema: getUnitConfigByIdSchema,
-    preHandler: [fastify.authenticate],
+    // preHandler: [fastify.authenticate],
     handler: async (request: FastifyRequest) => {
       const { id } = request.params as { id: string };
 

@@ -5,6 +5,7 @@ import { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 import { updateCompanySchema } from "./schema/updateCompanySchema";
 import { getCompanyByIdSchema } from "./schema/getCompanyByIdSchema";
 import { deleteCompanySchema } from "./schema/deleteCompanySchema";
+import { getCompanyEntitiesAndUnitSchema } from "./schema/getCompanyEntitiesAndUnit";
 
 const company: FastifyPluginAsyncTypebox = async (
   fastify: any
@@ -63,6 +64,17 @@ const company: FastifyPluginAsyncTypebox = async (
     handler: async (request: FastifyRequest) => {
       const { id } = request.params as { id: string };
       return await fastify.companyService.getCompanyById(id);
+    },
+  });
+
+  //get all entityies and unit by company id
+  fastify.route({
+    method: "GET",
+    url: "/:id/entitiesAndUnits",
+    schema: getCompanyEntitiesAndUnitSchema,
+    handler: async (request: FastifyRequest) => {
+      const { id } = request.params as { id: string };
+      return await fastify.companyService.getEntitiesAndUnitsByCompanyId(id);
     },
   });
 };

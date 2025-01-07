@@ -9,6 +9,7 @@ export const UnitSchema = Type.Object({
   isPublic: Type.Boolean({ default: false }),
   isActive: Type.Boolean({ default: true }),
   lastMaintenanceDate: Type.Optional(Type.String()),
+  imagePath: Type.Optional(Type.String()),
   updatedAt: Type.String(),
   createdAt: Type.String(),
 });
