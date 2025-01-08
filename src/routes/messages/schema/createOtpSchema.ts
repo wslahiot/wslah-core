@@ -6,7 +6,6 @@ export const IBody = Type.Object({
   userSender: Type.String(),
   lang: Type.String(),
   apiKey: Type.String(),
-  companyId: Type.String(),
 });
 
 export type TBody = Static<typeof IBody>;

@@ -1,6 +1,9 @@
 import { FastifyRequest } from "fastify";
 import { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 import { createExternalConnectionSchema } from "./schema/createExternalConnectionSchema";
+import { getExternalConnectionsSchema } from "./schema/getExternalConnectionsSchema";
+import { getExternalConnectionByIdSchema } from "./schema/getExternalConnectionByIdSchema";
+import { deleteExternalConnectionSchema } from "./schema/deleteExternalConnectionSchema";
 
 const externalConnections: FastifyPluginAsyncTypebox = async (
   fastify: any
@@ -8,6 +11,7 @@ const externalConnections: FastifyPluginAsyncTypebox = async (
   fastify.route({
     method: "GET",
     url: "/",
+    schema: getExternalConnectionsSchema,
     preHandler: [fastify.authenticate],
     handler: async (request: FastifyRequest) => {
       const decoded = fastify.decode(request.headers.authorization);
@@ -33,6 +37,7 @@ const externalConnections: FastifyPluginAsyncTypebox = async (
   fastify.route({
     method: "GET",
     url: "/:id",
+    schema: getExternalConnectionByIdSchema,
     preHandler: [fastify.authenticate],
     handler: async (request: FastifyRequest) => {
       const { id } = request.params as { id: string };
@@ -47,6 +52,7 @@ const externalConnections: FastifyPluginAsyncTypebox = async (
   fastify.route({
     method: "DELETE",
     url: "/:id",
+    schema: deleteExternalConnectionSchema,
     preHandler: [fastify.authenticate],
     handler: async (request: FastifyRequest) => {
       const { id } = request.params as { id: string };

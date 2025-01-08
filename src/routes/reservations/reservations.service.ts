@@ -22,47 +22,77 @@ export const ReservationsService = (fastify: any) => {
       return unit?.companyId;
     },
     createReservation: async (data: CreateReservationBody) => {
-      // // Validate the hours
-      // validateReservationHours(data.reservedHours);
-
-      // // Check availability
-      // await checkAvailability(
-      //   data.unitId,
-      //   data.reservationDate,
-      //   data.reservedHours
-      // );
-
-      const reservation = {
-        id: v4(),
-        unitId: data.unitId,
-        customerInfo: data.customerInfo,
-        reservationDate: data.reservationDate,
-        reservedHours: data.reservedHours,
-        isActive: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      const companyId = await fastify.reservationsService.getCompanyId(
-        data.unitId
-      );
-
-      console.log(companyId);
-
-      const result = await fastify.mongo
-        .collection("reservations")
-        .insertOne(reservation);
-
-      if (result.insertedId) {
-        return {
-          status: "success",
-          message: "Reservation created",
+      try {
+        const reservation = {
+          id: v4(),
+          unitId: data.unitId,
+          customerInfo: data.customerInfo,
+          reservationDate: data.reservationDate,
+          reservedHours: data.reservedHours,
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         };
+
+        const companyId = await fastify.reservationsService.getCompanyId(
+          data.unitId
+        );
+
+        const getMsgatCredi = await fastify.mongo
+          .collection("ExternalConnections")
+          .findOne({
+            companyId,
+            type: "msgat",
+          });
+        if (getMsgatCredi) {
+          const msgatCredi = await fastify.decryptPayload(
+            getMsgatCredi.payload
+          );
+
+          //!integrating wit ttlock lock and generate passcode
+          //generate random passcode from 6 digits
+          const passcode = Math.floor(
+            100000 + Math.random() * 900000
+          ).toString();
+          const payload = {
+            userName: msgatCredi.userName,
+            numbers: data.customerInfo.phone,
+            userSender: msgatCredi.userSender,
+            apiKey: msgatCredi.apiKey,
+            msg: `🎉 مرحباً ${data.customerInfo.name}، 
+لقد تم إنشاء حجزك بنجاح في الفترة المحددة أدناه:
+📅 التاريخ: ${data.reservationDate}
+⏰ الساعات: ${data.reservedHours.join(", ")}
+
+ الكود الخاص بك هو:
+              🔑 ${passcode} 
+              نتمنى لك وقتاً ممتعاً! 😊
+
+لالغاء الحجز يرجى الضغط على الرابط التالي:
+https://wslah.co/calendar/cancel-reservation/${
+              reservation.id
+            }/${companyId}?mobile=${data.customerInfo.phone}`,
+          };
+          await fastify.messagesService.sendSms(payload);
+        }
+        const result = await fastify.mongo
+          .collection("reservations")
+          .insertOne(reservation);
+
+        if (result.insertedId) {
+          return {
+            status: "success",
+            message: "Reservation created",
+          };
+        }
+        return {
+          status: "error",
+          message: "Reservation not created",
+        };
+      } catch (error: any) {
+        console.error("Failed to create reservation:", error);
+        throw new Error(`Failed to create reservation: ${error.message}`);
       }
-      return {
-        status: "error",
-        message: "Reservation not created",
-      };
     },
 
     getAvailableHours: async (unitId: string, date: string) => {
