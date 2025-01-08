@@ -1,6 +1,4 @@
 import { v4 } from "uuid";
-import axios from "axios";
-import moment from "moment";
 
 import {
   // TResponse as CreateReservationResponse,
@@ -56,45 +54,6 @@ export const ReservationsService = (fastify: any) => {
         .insertOne(reservation);
 
       if (result.insertedId) {
-        // try {
-        //   const { customerInfo, id: reservationId } = reservation;
-        //   const { name: customerName, phoneNumber } = customerInfo;
-
-        //   // Calculate start and end dates based on reservation data
-        //   const startDate = `${data.reservationDate} ${data.reservedHours[0]}:00`;
-        //   const endDate = `${data.reservationDate} ${
-        //     data.reservedHours[data.reservedHours.length - 1]
-        //   }:00`;
-
-        //   await axios({
-        //     method: "post",
-        //     url: `${process.env.VARANDA_API_URL}/SendUtils/SendCompanySms`,
-        //     headers: {
-        //       "Content-Type": "application/json",
-        //     },
-        //     data: {
-        //       companyId,
-        //       phoneNumber,
-        //       message: `
-        //       🎉 مرحباً ${customerName},
-        //       لقد تم إنشاء كود لك لفتح الباب في الفترة المحددة أدناه:
-        //       📅 من: ${moment(startDate).format("YYYY-MM-DD HH:mm:ss")}
-        //       📅 إلى: ${moment(endDate).format("YYYY-MM-DD HH:mm:ss")}
-        //       الكود الخاص بك هو:
-        //       🔑 ${passcode}
-        //       نتمنى لك وقتاً ممتعاً! 😊
-
-        //       لالغاء الحجز يرجى الضغط على الرابط التالي:
-        //       ${
-        //         process.env.APP_URL
-        //       }/calendar/cancel-reservation/${reservationId}/${companyId}?mobile=${phoneNumber}`,
-        //     },
-        //   });
-        // } catch (error) {
-        //   fastify.log.error("Failed to send SMS notification:", error);
-        //   // Continue with success response as SMS is not critical
-        // }
-
         return {
           status: "success",
           message: "Reservation created",
