@@ -11,7 +11,8 @@ const IParams = Type.Object({
 export type TParams = Static<typeof IParams>;
 
 const IResponse = Type.Object({
-  id: Type.String(),
+  status: Type.String(),
+  message: Type.String(),
 });
 
 export const IBody = Type.Object(

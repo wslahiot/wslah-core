@@ -10,15 +10,12 @@ const IResponse = Type.Object({
   message: Type.String(),
 });
 
-export const IBody = Type.Object({
-  name: Type.Optional(Type.String()),
-  deviceType: Type.Optional(Type.String()),
-  brand: Type.Optional(Type.String()),
-  isConnectedToNetwork: Type.Optional(Type.Boolean()),
-  status: Type.Optional(Type.Boolean()),
-  location: Type.Optional(Type.String()),
-  batteryLevel: Type.Optional(Type.Number()),
-});
+export const IBody = Type.Object(
+  {},
+  {
+    additionalProperties: true,
+  }
+);
 
 export type TBody = Static<typeof IBody>;
 export type TResponse = Static<typeof IResponse>;

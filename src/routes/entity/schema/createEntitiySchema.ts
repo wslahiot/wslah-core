@@ -19,6 +19,7 @@ export const IBody = Type.Object({
   lat: Type.Number(),
   lng: Type.Number(),
   description: Type.String(),
+  linkedUnits: Type.Optional(Type.Array(Type.String())),
 });
 
 export type TBody = Static<typeof IBody>;

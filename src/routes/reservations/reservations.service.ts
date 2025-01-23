@@ -44,6 +44,7 @@ export const ReservationsService = (fastify: any) => {
             companyId,
             type: "msgat",
           });
+        console.log({ getMsgatCredi });
         if (getMsgatCredi) {
           const msgatCredi = await fastify.decryptPayload(
             getMsgatCredi.payload
@@ -54,27 +55,48 @@ export const ReservationsService = (fastify: any) => {
           const passcode = Math.floor(
             100000 + Math.random() * 900000
           ).toString();
-          const payload = {
-            userName: msgatCredi.userName,
-            numbers: data.customerInfo.phone,
-            userSender: msgatCredi.userSender,
-            apiKey: msgatCredi.apiKey,
-            msg: `🎉 مرحباً ${data.customerInfo.name}، 
-لقد تم إنشاء حجزك بنجاح في الفترة المحددة أدناه:
-📅 التاريخ: ${data.reservationDate}
-⏰ الساعات: ${data.reservedHours.join(", ")}
 
- الكود الخاص بك هو:
-              🔑 ${passcode} 
-              نتمنى لك وقتاً ممتعاً! 😊
+          //  lockId: Type.String(),
+          // passcode: Type.String(),
+          // passcodeName: Type.String(),
+          // startDate: Type.Optional(Type.String()),
+          // endDate: Type.Optional(Type.String()),
+          if (data.customerInfo.lockId) {
+            const generatePasscode =
+              await fastify.ttlockService.generatePasscode({
+                lockId: data.customerInfo.lockId,
+                passcode,
+                passcodeName: `${data.customerInfo.name} - ${data.reservationDate}`,
+                startDate: data.reservationDate,
+                endDate: data.reservationDate,
+              });
 
-لالغاء الحجز يرجى الضغط على الرابط التالي:
-https://wslah.co/calendar/cancel-reservation/${
-              reservation.id
-            }/${companyId}?mobile=${data.customerInfo.phone}`,
-          };
-          await fastify.messagesService.sendSms(payload);
+            if (generatePasscode.status === "success") {
+              const payload = {
+                userName: msgatCredi.userName,
+                numbers: data.customerInfo.phone,
+                userSender: msgatCredi.userSender,
+                apiKey: msgatCredi.apiKey,
+                msg: `🎉 مرحباً ${data.customerInfo.name}،
+                لقد تم إنشاء حجزك بنجاح في الفترة المحددة أدناه:
+                📅 التاريخ: ${data.reservationDate}
+                ⏰ الساعات: ${data.reservedHours.join(", ")}
+      
+                 الكود الخاص بك هو:
+                              🔑 ${passcode}
+                              نتمنى لك وقتاً ممتعاً! 😊
+      
+                لالغاء الحجز يرجى الضغط على الرابط التالي:
+                https://wslah.co/calendar/cancel-reservation/${
+                  reservation.id
+                }/${companyId}?mobile=${data.customerInfo.phone}`,
+              };
+              await fastify.messagesService.sendSms(payload);
+            }
+          }
         }
+
+        console.log({ reservation });
         const result = await fastify.mongo
           .collection("reservations")
           .insertOne(reservation);

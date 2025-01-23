@@ -5,6 +5,7 @@ import {
   TCreateUnitBody,
   TCreateUnitResponse,
 } from "./schema/createUnitSchema";
+import { TUpdateUnitBody } from "./schema/updateUnitSchema";
 import { decodeType } from "../../plugins/authenticate";
 import { v4 } from "uuid";
 
@@ -87,7 +88,7 @@ export default fp(async (fastify) => {
   const updateUnit = async (
     userInfo: decodeType,
     id: string,
-    data: TCreateUnitBody
+    data: TUpdateUnitBody
   ) => {
     try {
       const result = await fastify.mongo
@@ -100,7 +101,17 @@ export default fp(async (fastify) => {
       if (result.matchedCount === 0) {
         throw new Error("Unit not found");
       }
-      return { status: "success", message: "Unit updated successfully" };
+
+      // Fetch the updated document
+      const updatedUnit = await fastify.mongo
+        .collection("units")
+        .findOne({ id, companyId: userInfo.companyId });
+
+      return {
+        status: "success",
+        message: "Unit updated successfully",
+        data: updatedUnit,
+      };
     } catch (error: any) {
       console.error("Failed to update unit:", error);
       throw new Error(`Failed to update unit: ${error.message}`);

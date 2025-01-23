@@ -4,8 +4,8 @@ export const IBody = Type.Object({
   unitId: Type.String(),
   customerInfo: Type.Object({
     name: Type.String(),
-
     phone: Type.Optional(Type.String()),
+    lockId: Type.Optional(Type.String()),
   }),
   reservationDate: Type.String(), // YYYY-MM-DD
   reservedHours: Type.Array(Type.String()), // ["13:00", "14:00", "15:00"] for 1PM-4PM

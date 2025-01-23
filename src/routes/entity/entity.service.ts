@@ -58,7 +58,18 @@ export default fp(async (fastify) => {
     };
 
     try {
-      await fastify.mongo.collection("entities").insertOne(payload);
+      await fastify.mongo
+        .collection("entities")
+        .insertOne(payload)
+        .then((res) => {
+          if (data.linkedUnits) {
+            for (const unitId of data.linkedUnits) {
+              fastify.mongo
+                .collection("units")
+                .updateOne({ id: unitId }, { $set: { entityId: id } });
+            }
+          }
+        });
 
       return { status: "success", id };
     } catch (error: any) {
@@ -89,12 +100,9 @@ export default fp(async (fastify) => {
     try {
       const result = await fastify.mongo
         .collection("entities")
-        .updateOne(
-          { id, companyId: userInfo.companyId },
-          { $set: { isActive: false, updatedAt: new Date().toISOString() } }
-        );
+        .deleteOne({ id, companyId: userInfo.companyId });
 
-      if (result.matchedCount === 0) {
+      if (result.deletedCount === 0) {
         throw new Error("Entity not found");
       }
 

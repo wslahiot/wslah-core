@@ -114,23 +114,30 @@ export default fp(async (fastify) => {
     data: Partial<UpdateUnitConfigBody>
   ) => {
     try {
-      const result = await fastify.mongo.collection("unitConfig").updateOne(
-        { unitId: id },
-        {
-          $set: {
-            ...data,
-            updatedAt: new Date().toISOString(),
-          },
-        }
-      );
+      // First check if the record exists
+      const existingConfig = await fastify.mongo
+        .collection("unitConfig")
+        .findOne({ unitId: id });
 
-      if (result.matchedCount === 0) {
+      if (!existingConfig) {
         return {
           status: "failed",
           message: "Unit configuration not found",
           error: "Unit configuration not found",
         };
       }
+
+      // Update the existing record
+      await fastify.mongo.collection("unitConfig").updateOne(
+        { unitId: id },
+        {
+          $set: {
+            ...data,
+            updatedAt: new Date().toISOString(),
+          },
+        },
+        { upsert: false } // Ensure no new document is created if none exists
+      );
 
       return {
         status: "success",
