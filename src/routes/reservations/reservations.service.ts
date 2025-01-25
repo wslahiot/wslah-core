@@ -23,9 +23,14 @@ export const ReservationsService = (fastify: any) => {
     },
     createReservation: async (data: CreateReservationBody) => {
       try {
+        const companyId = await fastify.reservationsService.getCompanyId(
+          data.unitId
+        );
+
         const reservation = {
           id: v4(),
           unitId: data.unitId,
+          companyId,
           customerInfo: data.customerInfo,
           reservationDate: data.reservationDate,
           reservedHours: data.reservedHours,
@@ -34,10 +39,6 @@ export const ReservationsService = (fastify: any) => {
           updatedAt: new Date().toISOString(),
         };
 
-        const companyId = await fastify.reservationsService.getCompanyId(
-          data.unitId
-        );
-
         const getMsgatCredi = await fastify.mongo
           .collection("ExternalConnections")
           .findOne({
@@ -45,56 +46,57 @@ export const ReservationsService = (fastify: any) => {
             type: "msgat",
           });
         console.log({ getMsgatCredi });
-        if (getMsgatCredi) {
-          const msgatCredi = await fastify.decryptPayload(
-            getMsgatCredi.payload
-          );
+        // if (getMsgatCredi) {
+        //   const msgatCredi = await fastify.decryptPayload(
+        //     getMsgatCredi.payload
+        //   );
 
-          //!integrating wit ttlock lock and generate passcode
-          //generate random passcode from 6 digits
-          const passcode = Math.floor(
-            100000 + Math.random() * 900000
-          ).toString();
+        //   console.log("FInished decrypting msgatCredi", { msgatCredi });
+        //   //!integrating wit ttlock lock and generate passcode
+        //   //generate random passcode from 6 digits
+        //   const passcode = Math.floor(
+        //     100000 + Math.random() * 900000
+        //   ).toString();
 
-          //  lockId: Type.String(),
-          // passcode: Type.String(),
-          // passcodeName: Type.String(),
-          // startDate: Type.Optional(Type.String()),
-          // endDate: Type.Optional(Type.String()),
-          if (data.customerInfo.lockId) {
-            const generatePasscode =
-              await fastify.ttlockService.generatePasscode({
-                lockId: data.customerInfo.lockId,
-                passcode,
-                passcodeName: `${data.customerInfo.name} - ${data.reservationDate}`,
-                startDate: data.reservationDate,
-                endDate: data.reservationDate,
-              });
+        //   //  lockId: Type.String(),
+        //   // passcode: Type.String(),
+        //   // passcodeName: Type.String(),
+        //   // startDate: Type.Optional(Type.String()),
+        //   // endDate: Type.Optional(Type.String()),
+        //   if (data.customerInfo.lockId) {
+        //     const generatePasscode =
+        //       await fastify.ttlockService.generatePasscode({
+        //         lockId: data.customerInfo.lockId,
+        //         passcode,
+        //         passcodeName: `${data.customerInfo.name} - ${data.reservationDate}`,
+        //         startDate: data.reservationDate,
+        //         endDate: data.reservationDate,
+        //       });
 
-            if (generatePasscode.status === "success") {
-              const payload = {
-                userName: msgatCredi.userName,
-                numbers: data.customerInfo.phone,
-                userSender: msgatCredi.userSender,
-                apiKey: msgatCredi.apiKey,
-                msg: `🎉 مرحباً ${data.customerInfo.name}،
-                لقد تم إنشاء حجزك بنجاح في الفترة المحددة أدناه:
-                📅 التاريخ: ${data.reservationDate}
-                ⏰ الساعات: ${data.reservedHours.join(", ")}
-      
-                 الكود الخاص بك هو:
-                              🔑 ${passcode}
-                              نتمنى لك وقتاً ممتعاً! 😊
-      
-                لالغاء الحجز يرجى الضغط على الرابط التالي:
-                https://wslah.co/calendar/cancel-reservation/${
-                  reservation.id
-                }/${companyId}?mobile=${data.customerInfo.phone}`,
-              };
-              await fastify.messagesService.sendSms(payload);
-            }
-          }
-        }
+        //     if (generatePasscode.status === "success") {
+        //       const payload = {
+        //         userName: msgatCredi.userName,
+        //         numbers: data.customerInfo.phone,
+        //         userSender: msgatCredi.userSender,
+        //         apiKey: msgatCredi.apiKey,
+        //         msg: `🎉 مرحباً ${data.customerInfo.name}،
+        //         لقد تم إنشاء حجزك بنجاح في الفترة المحددة أدناه:
+        //         📅 التاريخ: ${data.reservationDate}
+        //         ⏰ الساعات: ${data.reservedHours.join(", ")}
+
+        //          الكود الخاص بك هو:
+        //                       🔑 ${passcode}
+        //                       نتمنى لك وقتاً ممتعاً! 😊
+
+        //         لالغاء الحجز يرجى الضغط على الرابط التالي:
+        //         https://wslah.co/calendar/cancel-reservation/${
+        //           reservation.id
+        //         }/${companyId}?mobile=${data.customerInfo.phone}`,
+        //       };
+        //       await fastify.messagesService.sendSms(payload);
+        //     }
+        //   }
+        // }
 
         console.log({ reservation });
         const result = await fastify.mongo
@@ -138,11 +140,43 @@ export const ReservationsService = (fastify: any) => {
       };
     },
 
-    getReservations: async () => {
+    getReservations: async (companyId: string) => {
       const reservations = await fastify.mongo
         .collection("reservations")
-        .find()
+        .aggregate([
+          {
+            $match: {
+              companyId: companyId,
+            },
+          },
+          {
+            $lookup: {
+              from: "units",
+              localField: "unitId",
+              foreignField: "id",
+              as: "unit",
+            },
+          },
+          {
+            $unwind: "$unit",
+          },
+          {
+            $lookup: {
+              from: "entities",
+              localField: "unit.entityId",
+              foreignField: "id",
+              as: "entity",
+            },
+          },
+          {
+            $unwind: {
+              path: "$entity",
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+        ])
         .toArray();
+
       return reservations;
     },
 
@@ -202,7 +236,7 @@ export const ReservationsService = (fastify: any) => {
 declare module "fastify" {
   interface FastifyInstance {
     reservationsService: {
-      getReservations: () => Promise<any[]>;
+      getReservations: (companyId: string) => Promise<any[]>;
       getReservationsByUnitId: (unitId: string) => Promise<any[]>;
       getReservationById: (id: string) => Promise<any>;
       createReservation: (data: CreateReservationBody) => Promise<{

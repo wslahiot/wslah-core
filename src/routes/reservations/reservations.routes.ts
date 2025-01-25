@@ -18,8 +18,13 @@ const reservations: FastifyPluginAsyncTypebox = async (
     method: "GET",
     url: "/",
     schema: getReservationsSchema,
-    handler: async () => {
-      const reservations = await fastify.reservationsService.getReservations();
+    preHandler: [fastify.authenticate],
+    handler: async (request: any) => {
+      const decoded = request.user as any;
+
+      const reservations = await fastify.reservationsService.getReservations(
+        decoded.companyId
+      );
       return reservations || [];
     },
   });
